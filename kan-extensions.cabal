@@ -1,6 +1,6 @@
 name:          kan-extensions
 category:      Data Structures, Monads, Comonads, Functors
-version:       0.1
+version:       0.1.1
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -19,7 +19,7 @@ source-repository head
 
 library
   build-depends: 
-    adjunctions >= 0.7 && < 0.8,
+    adjunctions >= 0.8 && < 0.9,
     array >= 0.3.0.2 && < 0.4,
     base >= 4 && < 4.4,
     comonad >= 1.0 && < 1.1,
@@ -29,7 +29,7 @@ library
     distributive >= 0.1.1 && < 0.2,
     keys >= 0.1.0.1 && < 0.2,
     mtl >= 2.0.1.0 && < 2.1,
-    representable-functors >= 0.1.0.1 && < 0.2,
+    representable-functors >= 0.2 && < 0.3,
     semigroups >= 0.3.4 && < 0.4,
     semigroupoids >= 1.1.1 && < 1.2.0,
     transformers >= 0.2.0 && < 0.3
