@@ -104,7 +104,7 @@ instance MonadPlus f => MonadPlus (YonedaT f) where
   mzero = lift mzero
   m `mplus` n = lift $ lowerM m `mplus` lowerM n
 
-instance (Functor f, Index f) => Index (YonedaT f) where
+instance (Functor f, Indexable f) => Indexable (YonedaT f) where
   index = index . lowerYonedaT
 
 instance Representable f => Representable (YonedaT f) where

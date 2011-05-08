@@ -116,7 +116,7 @@ instance TraversableWithKey1 f => TraversableWithKey1 (YonedaT f) where
 instance Distributive f => Distributive (YonedaT f) where
   collect f = liftYonedaT . collect (lowerYonedaT . f)
 
-instance Index f => Index (YonedaT f) where
+instance Indexable f => Indexable (YonedaT f) where
   index = index . lowerYonedaT
 
 instance Lookup f => Lookup (YonedaT f) where
