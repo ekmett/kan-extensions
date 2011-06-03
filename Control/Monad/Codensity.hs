@@ -18,7 +18,7 @@ module Control.Monad.Codensity
   ) where
 
 import Control.Applicative
-import Control.Monad (ap)
+import Control.Monad (ap, MonadPlus(..))
 import Data.Functor.Adjunction
 import Data.Functor.Apply
 import Control.Monad.Trans.Class
@@ -52,6 +52,14 @@ instance MonadIO m => MonadIO (CodensityT m) where
 instance MonadTrans CodensityT where
   lift m = CodensityT (m >>=)
 
+instance Alternative v => Alternative (CodensityT v) where
+  empty                         = CodensityT (\_ -> empty)
+  CodensityT m <|> CodensityT n = CodensityT (\k -> m k <|> n k)
+
+instance MonadPlus v => MonadPlus (CodensityT v) where
+  mzero                             = CodensityT (\_ -> mzero)
+  CodensityT m `mplus` CodensityT n = CodensityT (\k -> m k `mplus` n k)
+ 
 lowerCodensityT :: Monad m => CodensityT m a -> m a
 lowerCodensityT a = runCodensityT a return
 
