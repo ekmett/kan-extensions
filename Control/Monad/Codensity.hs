@@ -20,6 +20,7 @@ module Control.Monad.Codensity
 import Control.Applicative
 import Control.Monad.Reader.Class
 import Control.Monad.State.Class
+import Control.Monad.Free.Class
 import Control.Monad (ap, MonadPlus(..))
 import Data.Functor.Adjunction
 import Data.Functor.Apply
@@ -65,6 +66,10 @@ codensityToAdjunction r = runCodensity r unit
 adjunctionToCodensity :: Adjunction f g => g (f a) -> Codensity g a
 adjunctionToCodensity f = Codensity (\a -> fmap (rightAdjunct a) f)
 
+instance MonadFree f m => MonadFree f (Codensity m) where
+  wrap t = Codensity (\h -> wrap (fmap (\p -> runCodensity p h) t))
+
 instance MonadReader r m => MonadState r (Codensity m) where
   get = Codensity (ask >>=)
   put s = Codensity (\k -> local (const s) (k ()))
+

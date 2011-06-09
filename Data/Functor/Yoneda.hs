@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies, CPP, Rank2Types, FlexibleContexts, MultiParamTypeClasses, UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies, CPP, Rank2Types, FlexibleContexts, MultiParamTypeClasses, UndecidableInstances, FlexibleInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Yoneda
@@ -12,20 +12,16 @@
 ----------------------------------------------------------------------------
 
 module Data.Functor.Yoneda
-  ( Yoneda
-  , yoneda
-  , runYoneda
+  ( Yoneda(..)
   , liftYoneda
   , lowerYoneda
-  , YonedaT(..)
-  , liftYonedaT
-  , lowerYonedaT
   , maxF, minF, maxM, minM
   ) where
 
 import Control.Applicative
 import Control.Monad (MonadPlus(..), liftM)
 import Control.Monad.Fix
+import Control.Monad.Free.Class
 import Control.Monad.Representable
 import Control.Monad.Trans.Class
 import Control.Comonad
@@ -34,7 +30,6 @@ import Data.Distributive
 import Data.Foldable
 import Data.Function (on)
 import Data.Functor.Plus
-import Data.Functor.Identity
 import Data.Functor.Bind
 import Data.Functor.Adjunction
 import Data.Key
@@ -45,161 +40,146 @@ import Data.Traversable
 import Text.Read hiding (lift)
 import Prelude hiding (sequence, lookup)
 
-type Yoneda = YonedaT Identity 
+newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b } 
 
-yoneda :: (forall b. (a -> b) -> b) -> Yoneda a
-yoneda f = YonedaT (Identity . f)
-{-# INLINE yoneda #-}
+liftYoneda :: Functor f => f a -> Yoneda f a 
+liftYoneda a = Yoneda (\f -> fmap f a)
 
-runYoneda :: Yoneda a -> (a -> b) -> b
-runYoneda (YonedaT f) = runIdentity . f
-{-# INLINE runYoneda #-}
+lowerYoneda :: Yoneda f a -> f a 
+lowerYoneda (Yoneda f) = f id
 
-liftYoneda :: a -> Yoneda a
-liftYoneda a = YonedaT (\f -> Identity (f a))
-{-# INLINE liftYoneda #-}
+{-# RULES "lower/lift=id" liftYoneda . lowerYoneda = id #-}
+{-# RULES "lift/lower=id" lowerYoneda . liftYoneda = id #-}
 
-lowerYoneda :: Yoneda a -> a
-lowerYoneda m = runIdentity (runYonedaT m id)
-{-# INLINE lowerYoneda #-}
+instance Functor (Yoneda f) where
+  fmap f m = Yoneda (\k -> runYoneda m (k . f))
 
-newtype YonedaT f a = YonedaT { runYonedaT :: forall b. (a -> b) -> f b } 
+type instance Key (Yoneda f) = Key f
 
-liftYonedaT :: Functor f => f a -> YonedaT f a 
-liftYonedaT a = YonedaT (\f -> fmap f a)
+instance Keyed f => Keyed (Yoneda f) where
+  mapWithKey f = liftYoneda . mapWithKey f . lowerYoneda 
 
-lowerYonedaT :: YonedaT f a -> f a 
-lowerYonedaT (YonedaT f) = f id
-
-{-# RULES "lower/lift=id" liftYonedaT . lowerYonedaT = id #-}
-{-# RULES "lift/lower=id" lowerYonedaT . liftYonedaT = id #-}
-
-instance Functor (YonedaT f) where
-  fmap f m = YonedaT (\k -> runYonedaT m (k . f))
-
-type instance Key (YonedaT f) = Key f
-
-instance Keyed f => Keyed (YonedaT f) where
-  mapWithKey f = liftYonedaT . mapWithKey f . lowerYonedaT 
-
-instance Apply f => Apply (YonedaT f) where
-  YonedaT m <.> YonedaT n = YonedaT (\f -> m (f .) <.> n id)
+instance Apply f => Apply (Yoneda f) where
+  Yoneda m <.> Yoneda n = Yoneda (\f -> m (f .) <.> n id)
   
-instance Applicative f => Applicative (YonedaT f) where
-  pure a = YonedaT (\f -> pure (f a))
-  YonedaT m <*> YonedaT n = YonedaT (\f -> m (f .) <*> n id)
+instance Applicative f => Applicative (Yoneda f) where
+  pure a = Yoneda (\f -> pure (f a))
+  Yoneda m <*> Yoneda n = Yoneda (\f -> m (f .) <*> n id)
 
-instance Foldable f => Foldable (YonedaT f) where
-  foldMap f = foldMap f . lowerYonedaT
+instance Foldable f => Foldable (Yoneda f) where
+  foldMap f = foldMap f . lowerYoneda
 
-instance Foldable1 f => Foldable1 (YonedaT f) where
-  foldMap1 f = foldMap1 f . lowerYonedaT
+instance Foldable1 f => Foldable1 (Yoneda f) where
+  foldMap1 f = foldMap1 f . lowerYoneda
 
-instance FoldableWithKey f => FoldableWithKey (YonedaT f) where
-  foldMapWithKey f = foldMapWithKey f . lowerYonedaT
+instance FoldableWithKey f => FoldableWithKey (Yoneda f) where
+  foldMapWithKey f = foldMapWithKey f . lowerYoneda
 
-instance FoldableWithKey1 f => FoldableWithKey1 (YonedaT f) where
-  foldMapWithKey1 f = foldMapWithKey1 f . lowerYonedaT
+instance FoldableWithKey1 f => FoldableWithKey1 (Yoneda f) where
+  foldMapWithKey1 f = foldMapWithKey1 f . lowerYoneda
 
-instance Traversable f => Traversable (YonedaT f) where
-  traverse f = fmap liftYonedaT . traverse f . lowerYonedaT
+instance Traversable f => Traversable (Yoneda f) where
+  traverse f = fmap liftYoneda . traverse f . lowerYoneda
 
-instance TraversableWithKey f => TraversableWithKey (YonedaT f) where
-  traverseWithKey f = fmap liftYonedaT . traverseWithKey f . lowerYonedaT
+instance TraversableWithKey f => TraversableWithKey (Yoneda f) where
+  traverseWithKey f = fmap liftYoneda . traverseWithKey f . lowerYoneda
 
-instance Traversable1 f => Traversable1 (YonedaT f) where
-  traverse1 f = fmap liftYonedaT . traverse1 f . lowerYonedaT
+instance Traversable1 f => Traversable1 (Yoneda f) where
+  traverse1 f = fmap liftYoneda . traverse1 f . lowerYoneda
 
-instance TraversableWithKey1 f => TraversableWithKey1 (YonedaT f) where
-  traverseWithKey1 f = fmap liftYonedaT . traverseWithKey1 f . lowerYonedaT
+instance TraversableWithKey1 f => TraversableWithKey1 (Yoneda f) where
+  traverseWithKey1 f = fmap liftYoneda . traverseWithKey1 f . lowerYoneda
 
-instance Distributive f => Distributive (YonedaT f) where
-  collect f = liftYonedaT . collect (lowerYonedaT . f)
+instance Distributive f => Distributive (Yoneda f) where
+  collect f = liftYoneda . collect (lowerYoneda . f)
 
-instance Indexable f => Indexable (YonedaT f) where
-  index = index . lowerYonedaT
+instance Indexable f => Indexable (Yoneda f) where
+  index = index . lowerYoneda
 
-instance Lookup f => Lookup (YonedaT f) where
-  lookup i = lookup i . lowerYonedaT
+instance Lookup f => Lookup (Yoneda f) where
+  lookup i = lookup i . lowerYoneda
 
-instance Representable g => Representable (YonedaT g) where
-  tabulate = liftYonedaT . tabulate
+instance Representable g => Representable (Yoneda g) where
+  tabulate = liftYoneda . tabulate
 
-instance Adjunction f g => Adjunction (YonedaT f) (YonedaT g) where
-  unit = liftYonedaT . fmap liftYonedaT . unit
-  counit (YonedaT m) = counit (m lowerYonedaT)
+instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
+  unit = liftYoneda . fmap liftYoneda . unit
+  counit (Yoneda m) = counit (m lowerYoneda)
 
--- instance Show1 f => Show1 (YonedaT f) where
-instance Show (f a) => Show (YonedaT f a) where
-  showsPrec d (YonedaT f) = showParen (d > 10) $
-    showString "liftYonedaT " . showsPrec 11 (f id)
+-- instance Show1 f => Show1 (Yoneda f) where
+instance Show (f a) => Show (Yoneda f a) where
+  showsPrec d (Yoneda f) = showParen (d > 10) $
+    showString "liftYoneda " . showsPrec 11 (f id)
 
--- instance Read1 f => Read1 (YonedaT f) where
+-- instance Read1 f => Read1 (Yoneda f) where
 #ifdef __GLASGOW_HASKELL__
-instance (Functor f, Read (f a)) => Read (YonedaT f a) where
+instance (Functor f, Read (f a)) => Read (Yoneda f a) where
   readPrec = parens $ prec 10 $ do
-     Ident "liftYonedaT" <- lexP
-     liftYonedaT <$> step readPrec
+     Ident "liftYoneda" <- lexP
+     liftYoneda <$> step readPrec
 #endif
 
-instance Eq (f a) => Eq (YonedaT f a) where
-  (==) = (==) `on` lowerYonedaT
+instance Eq (f a) => Eq (Yoneda f a) where
+  (==) = (==) `on` lowerYoneda
 
-instance Ord (f a) => Ord (YonedaT f a) where
-  compare = compare `on` lowerYonedaT
+instance Ord (f a) => Ord (Yoneda f a) where
+  compare = compare `on` lowerYoneda
 
-maxF :: (Functor f, Ord (f a)) => YonedaT f a -> YonedaT f a -> YonedaT f a
-YonedaT f `maxF` YonedaT g = liftYonedaT $ f id `max` g id
+maxF :: (Functor f, Ord (f a)) => Yoneda f a -> Yoneda f a -> Yoneda f a
+Yoneda f `maxF` Yoneda g = liftYoneda $ f id `max` g id
 -- {-# RULES "max/maxF" max = maxF #-}
 {-# INLINE maxF #-}
 
-minF :: (Functor f, Ord (f a)) => YonedaT f a -> YonedaT f a -> YonedaT f a
-YonedaT f `minF` YonedaT g = liftYonedaT $ f id `max` g id
+minF :: (Functor f, Ord (f a)) => Yoneda f a -> Yoneda f a -> Yoneda f a
+Yoneda f `minF` Yoneda g = liftYoneda $ f id `max` g id
 -- {-# RULES "min/minF" min = minF #-}
 {-# INLINE minF #-}
 
-maxM :: (Monad m, Ord (m a)) => YonedaT m a -> YonedaT m a -> YonedaT m a
-YonedaT f `maxM` YonedaT g = lift $ f id `max` g id
+maxM :: (Monad m, Ord (m a)) => Yoneda m a -> Yoneda m a -> Yoneda m a
+Yoneda f `maxM` Yoneda g = lift $ f id `max` g id
 -- {-# RULES "max/maxM" max = maxM #-}
 {-# INLINE maxM #-}
 
-minM :: (Monad m, Ord (m a)) => YonedaT m a -> YonedaT m a -> YonedaT m a
-YonedaT f `minM` YonedaT g = lift $ f id `min` g id
+minM :: (Monad m, Ord (m a)) => Yoneda m a -> Yoneda m a -> Yoneda m a
+Yoneda f `minM` Yoneda g = lift $ f id `min` g id
 -- {-# RULES "min/minM" min = minM #-}
 {-# INLINE minM #-}
 
-instance Alt f => Alt (YonedaT f) where
-  YonedaT f <!> YonedaT g = YonedaT (\k -> f k <!> g k)
+instance Alt f => Alt (Yoneda f) where
+  Yoneda f <!> Yoneda g = Yoneda (\k -> f k <!> g k)
 
-instance Plus f => Plus (YonedaT f) where
-  zero = YonedaT $ const zero
+instance Plus f => Plus (Yoneda f) where
+  zero = Yoneda $ const zero
 
-instance Alternative f => Alternative (YonedaT f) where
-  empty = YonedaT $ const empty
-  YonedaT f <|> YonedaT g = YonedaT (\k -> f k <|> g k)
+instance Alternative f => Alternative (Yoneda f) where
+  empty = Yoneda $ const empty
+  Yoneda f <|> Yoneda g = Yoneda (\k -> f k <|> g k)
 
-instance Bind m => Bind (YonedaT m) where
-  YonedaT m >>- k = YonedaT (\f -> m id >>- \a -> runYonedaT (k a) f)
+instance Bind m => Bind (Yoneda m) where
+  Yoneda m >>- k = Yoneda (\f -> m id >>- \a -> runYoneda (k a) f)
   
-instance Monad m => Monad (YonedaT m) where
-  return a = YonedaT (\f -> return (f a))
-  YonedaT m >>= k = YonedaT (\f -> m id >>= \a -> runYonedaT (k a) f)
+instance Monad m => Monad (Yoneda m) where
+  return a = Yoneda (\f -> return (f a))
+  Yoneda m >>= k = Yoneda (\f -> m id >>= \a -> runYoneda (k a) f)
 
-instance MonadFix m => MonadFix (YonedaT m) where
-  mfix f = lift $ mfix (lowerYonedaT . f)
+instance MonadFix m => MonadFix (Yoneda m) where
+  mfix f = lift $ mfix (lowerYoneda . f)
 
-instance MonadPlus m => MonadPlus (YonedaT m) where
-  mzero = YonedaT (const mzero)
-  YonedaT f `mplus` YonedaT g = YonedaT (\k -> f k `mplus` g k)
+instance MonadPlus m => MonadPlus (Yoneda m) where
+  mzero = Yoneda (const mzero)
+  Yoneda f `mplus` Yoneda g = Yoneda (\k -> f k `mplus` g k)
 
-instance MonadTrans YonedaT where
-  lift a = YonedaT (\f -> liftM f a)
+instance MonadTrans Yoneda where
+  lift a = Yoneda (\f -> liftM f a)
 
-instance Extend w => Extend (YonedaT w) where
-  extend k (YonedaT m) = YonedaT (\f -> extend (f . k . liftYonedaT) (m id))
+instance MonadFree f m => MonadFree f (Yoneda m) where
+  wrap = lift . wrap . fmap lowerYoneda
 
-instance Comonad w => Comonad (YonedaT w) where
-  extract = extract . lowerYonedaT 
+instance Extend w => Extend (Yoneda w) where
+  extend k (Yoneda m) = Yoneda (\f -> extend (f . k . liftYoneda) (m id))
 
-instance ComonadTrans YonedaT where
-  lower = lowerYonedaT 
+instance Comonad w => Comonad (Yoneda w) where
+  extract = extract . lowerYoneda 
+
+instance ComonadTrans Yoneda where
+  lower = lowerYoneda 
