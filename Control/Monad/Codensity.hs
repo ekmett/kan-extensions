@@ -15,6 +15,7 @@ module Control.Monad.Codensity
   , lowerCodensity
   , codensityToAdjunction
   , adjunctionToCodensity
+  , improve
   ) where
 
 import Control.Applicative
@@ -56,7 +57,7 @@ instance Alternative v => Alternative (Codensity v) where
 instance MonadPlus v => MonadPlus (Codensity v) where
   mzero                             = Codensity (\_ -> mzero)
   Codensity m `mplus` Codensity n = Codensity (\k -> m k `mplus` n k)
- 
+
 lowerCodensity :: Monad m => Codensity m a -> m a
 lowerCodensity a = runCodensity a return
 
@@ -72,4 +73,10 @@ instance MonadFree f m => MonadFree f (Codensity m) where
 instance MonadReader r m => MonadState r (Codensity m) where
   get = Codensity (ask >>=)
   put s = Codensity (\k -> local (const s) (k ()))
+
+-- | Right associate all binds in a computation that generates a free monad
+-- This can improve the asymptotic efficiency of the result, while preserving
+-- semantics.
+improve :: (forall m. MonadFree f m => m a) -> Free f a
+improve m = lowerCodensity m
 
