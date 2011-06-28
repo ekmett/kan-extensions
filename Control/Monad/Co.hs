@@ -3,7 +3,21 @@
            , FlexibleContexts
            , MultiParamTypeClasses
            , UndecidableInstances #-}
-
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Control.Monad.Co
+-- Copyright   :  (C) 2011 Edward Kmett
+-- License     :  BSD-style (see the file LICENSE)
+--
+-- Maintainer  :  Edward Kmett <ekmett@gmail.com>
+-- Stability   :  provisional
+-- Portability :  non-portable (rank-2 polymorphism)
+--
+-- Monads from Comonads
+--
+-- http://comonad.com/reader/2011/monads-from-comonads/
+--
+----------------------------------------------------------------------------
 module Control.Monad.Co 
   ( Co(..)
   , lift0, lift1

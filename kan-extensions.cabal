@@ -40,6 +40,7 @@ library
     Control.Comonad.Density
     Control.Monad.Co
     Control.Monad.Codensity
+    Control.Monad.Free.Church
     Data.Functor.KanExtension
     Data.Functor.Yoneda
     Data.Functor.Yoneda.Contravariant
