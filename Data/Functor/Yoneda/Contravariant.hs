@@ -20,7 +20,6 @@ module Data.Functor.Yoneda.Contravariant
 import Control.Applicative
 import Control.Monad (MonadPlus(..), liftM)
 import Control.Monad.Fix
-import Control.Monad.Representable
 import Control.Monad.Trans.Class
 import Control.Comonad
 import Control.Comonad.Trans.Class
@@ -29,6 +28,7 @@ import Data.Function (on)
 import Data.Functor.Bind
 import Data.Functor.Plus
 import Data.Functor.Adjunction
+import Data.Functor.Representable
 import Data.Key
 import Prelude hiding (sequence, lookup)
 import Text.Read hiding (lift)

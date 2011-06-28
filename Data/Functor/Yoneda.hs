@@ -22,7 +22,6 @@ import Control.Applicative
 import Control.Monad (MonadPlus(..), liftM)
 import Control.Monad.Fix
 import Control.Monad.Free.Class
-import Control.Monad.Representable
 import Control.Monad.Trans.Class
 import Control.Comonad
 import Control.Comonad.Trans.Class
@@ -32,6 +31,7 @@ import Data.Function (on)
 import Data.Functor.Plus
 import Data.Functor.Bind
 import Data.Functor.Adjunction
+import Data.Functor.Representable
 import Data.Key
 -- import Data.Semigroup
 import Data.Semigroup.Foldable
@@ -172,7 +172,7 @@ instance MonadPlus m => MonadPlus (Yoneda m) where
 instance MonadTrans Yoneda where
   lift a = Yoneda (\f -> liftM f a)
 
-instance MonadFree f m => MonadFree f (Yoneda m) where
+instance (Functor f, MonadFree f m) => MonadFree f (Yoneda m) where
   wrap = lift . wrap . fmap lowerYoneda
 
 instance Extend w => Extend (Yoneda w) where

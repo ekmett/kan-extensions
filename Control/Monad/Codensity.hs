@@ -22,6 +22,7 @@ import Control.Applicative
 import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import Control.Monad.Free.Class
+import Control.Monad.Free
 import Control.Monad (ap, MonadPlus(..))
 import Data.Functor.Adjunction
 import Data.Functor.Apply
@@ -67,7 +68,7 @@ codensityToAdjunction r = runCodensity r unit
 adjunctionToCodensity :: Adjunction f g => g (f a) -> Codensity g a
 adjunctionToCodensity f = Codensity (\a -> fmap (rightAdjunct a) f)
 
-instance MonadFree f m => MonadFree f (Codensity m) where
+instance (Functor f, MonadFree f m) => MonadFree f (Codensity m) where
   wrap t = Codensity (\h -> wrap (fmap (\p -> runCodensity p h) t))
 
 instance MonadReader r m => MonadState r (Codensity m) where
@@ -77,6 +78,6 @@ instance MonadReader r m => MonadState r (Codensity m) where
 -- | Right associate all binds in a computation that generates a free monad
 -- This can improve the asymptotic efficiency of the result, while preserving
 -- semantics.
-improve :: (forall m. MonadFree f m => m a) -> Free f a
+improve :: Functor f => (forall m. MonadFree f m => m a) -> Free f a
 improve m = lowerCodensity m
 
