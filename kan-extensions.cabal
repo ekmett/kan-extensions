@@ -1,6 +1,6 @@
 name:          kan-extensions
 category:      Data Structures, Monads, Comonads, Functors
-version:       1.8.0
+version:       1.9.0
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE

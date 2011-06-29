@@ -1,8 +1,9 @@
 {-# LANGUAGE Rank2Types
            , FlexibleInstances
            , FlexibleContexts
-           , MultiParamTypeClasses
-           , UndecidableInstances #-}
+           , UndecidableInstances
+           , MultiParamTypeClasses #-}
+{-# LANGUAGE ImplicitParams #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Co
@@ -19,53 +20,110 @@
 --
 ----------------------------------------------------------------------------
 module Control.Monad.Co 
-  ( Co(..)
-  , lift0, lift1
-  , lower0, lower1
+  ( 
+  -- * Monads from Comonads
+    Co, co, runCo
+  -- * Monad Transformers from Comonads
+  , CoT(..)
+  -- * Klesili from CoKleisli
+  , liftCoT0, lowerCoT0, lowerCo0
+  , liftCoT1, lowerCoT1, lowerCo1
+  , posW, peekW, peeksW
+  , askW, asksW, traceW
   )where
 
-import Control.Comonad
 import Control.Applicative
+import Control.Comonad
+import Control.Comonad.Env.Class as Env
+import Control.Comonad.Traced.Class as Traced
 import Control.Comonad.Store.Class
+import Control.Monad.Trans.Class
+import Control.Monad.IO.Class
+import Control.Monad.Reader.Class as Reader
 import Control.Monad.State.Class
+import Control.Monad.Writer.Class as Writer
+import Control.Monad.Identity
 import Data.Functor.Bind
 
--- import Control.Comonad.Env.Class as Env
--- import Control.Comonad.Traced.Class as Traced
--- import Control.Monad.Reader.Class
--- import Control.Monad.Writer.Class
+type Co w = CoT w Identity
 
-newtype Co w a = Co { runCo :: forall r. w (a -> r) -> r }
+co :: Functor w => (forall r. w (a -> r) -> r) -> Co w a
+co f = CoT (Identity . f . fmap (fmap runIdentity))
 
-instance Functor w => Functor (Co w) where
-   fmap f (Co w) = Co (w . fmap (. f))
+runCo :: Functor w => Co w a -> w (a -> r) -> r
+runCo m = runIdentity . runCoT m . fmap (fmap Identity)
 
-instance Extend w => Apply (Co w) where
-   mf <.> ma = mf >>- (`fmap` ma)
+newtype CoT w m a = CoT { runCoT :: forall r. w (a -> m r) -> m r }
 
-instance Extend w => Bind (Co w) where
-   Co k >>- f = Co (k . extend (\wa a -> runCo (f a) wa))
+instance Functor w => Functor (CoT w m) where
+  fmap f (CoT w) = CoT (w . fmap (. f))
 
-instance Comonad w => Applicative (Co w) where
-   mf <*> ma = mf >>= (`fmap` ma)
-   pure a = Co (`extract` a)
+instance Extend w => Apply (CoT w m) where
+  mf <.> ma = mf >>- \f -> fmap f ma
 
-instance Comonad w => Monad (Co w) where
-   return a = Co (`extract` a)
-   Co k >>= f = Co (k . extend (\wa a -> runCo (f a) wa))
+instance Extend w => Bind (CoT w m) where
+  CoT k >>- f = CoT (k . extend (\wa a -> runCoT (f a) wa))
 
-lift0 :: Comonad w => (forall a. w a -> s) -> Co w s
-lift0 f = Co (extract <*> f)
+instance Comonad w => Applicative (CoT w m) where
+  pure a = CoT (`extract` a)
+  mf <*> ma = mf >>= \f -> fmap f ma
+  
+instance Comonad w => Monad (CoT w m) where
+  return a = CoT (`extract` a)
+  CoT k >>= f = CoT (k . extend (\wa a -> runCoT (f a) wa))
 
-lower0 :: Functor w => Co w s -> w a -> s
-lower0 (Co f) w = f (id <$ w)
+instance Comonad w => MonadTrans (CoT w) where
+  lift m = CoT (extract . fmap (m >>=))
 
-lift1 :: (forall a. w a -> a) -> Co w ()
-lift1 f = Co (`f` ())
+instance (Comonad w, MonadIO m) => MonadIO (CoT w m) where
+  liftIO = lift . liftIO
 
-lower1 :: Functor w => Co w () -> w a -> a
-lower1 (Co f) w = f (fmap const w)
+liftCoT0 :: Comonad w => (forall a. w a -> s) -> CoT w m s
+liftCoT0 f = CoT (extract <*> f)
 
-instance ComonadStore s m => MonadState s (Co m) where
-   get = lift0 pos
-   put s = lift1 (peek s)
+lowerCoT0 :: (Functor w, Monad m) => CoT w m s -> w a -> m s
+lowerCoT0 m = runCoT m . (return <$) 
+
+lowerCo0 :: Functor w => Co w s -> w a -> s
+lowerCo0 m = runIdentity . runCoT m . (return <$) 
+
+liftCoT1 :: (forall a. w a -> a) -> CoT w m ()
+liftCoT1 f = CoT (`f` ())
+
+lowerCoT1 :: (Functor w, Monad m) => CoT w m () -> w a -> m a
+lowerCoT1 m = runCoT m . fmap (const . return)
+
+lowerCo1 :: Functor w => Co w () -> w a -> a
+lowerCo1 m = runIdentity . runCoT m . fmap (const . return)
+
+posW :: (ComonadStore s w, Monad m) => CoT w m s
+posW = liftCoT0 pos
+
+peekW :: (ComonadStore s w, Monad m) => s -> CoT w m ()
+peekW s = liftCoT1 (peek s)
+
+peeksW :: (ComonadStore s w, Monad m) => (s -> s) -> CoT w m ()
+peeksW f = liftCoT1 (peeks f)
+
+askW :: (ComonadEnv e w, Monad m) => CoT w m e
+askW = liftCoT0 (Env.ask)
+
+asksW :: (ComonadEnv e w, Monad m) => (e -> a) -> CoT w m a
+asksW f = liftCoT0 (Env.asks f)
+
+traceW :: (ComonadTraced e w, Monad m) => e -> CoT w m ()
+traceW e = liftCoT1 (Traced.trace e)
+
+instance (Comonad w, MonadReader e m) => MonadReader e (CoT w m) where
+  ask = lift Reader.ask
+  local f m = CoT (local f . runCoT m)
+
+instance (Comonad w, MonadState s m) => MonadState s (CoT w m) where
+  get = lift get
+  put = lift . put
+
+instance (Comonad w, MonadWriter e m) => MonadWriter e (CoT w m) where
+  tell = lift . tell
+  pass m = CoT (pass . runCoT m . fmap aug) where 
+    aug f (a,e) = liftM (\r -> (r,e)) (f a)
+  listen = error "Control.Monad.Co.listen: TODO"
