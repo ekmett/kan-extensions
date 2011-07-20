@@ -30,7 +30,7 @@ import Data.Functor.Plus
 import Data.Functor.Adjunction
 import Data.Functor.Representable
 import Data.Key
-import Prelude hiding (sequence, lookup)
+import Prelude hiding (sequence, lookup, zipWith)
 import Text.Read hiding (lift)
 
 -- | The contravariant Yoneda lemma applied to a covariant functor
@@ -60,6 +60,12 @@ instance Apply f => Apply (Yoneda f) where
 instance Applicative f => Applicative (Yoneda f) where
   pure = liftYoneda . pure
   m <*> n = liftYoneda $ lowerYoneda m <*> lowerYoneda n
+
+instance Zip f => Zip (Yoneda f) where
+  zipWith f m n = liftYoneda $ zipWith f (lowerYoneda m) (lowerYoneda n)
+
+instance ZipWithKey f => ZipWithKey (Yoneda f) where
+  zipWithKey f m n = liftYoneda $ zipWithKey f (lowerYoneda m) (lowerYoneda n)
 
 instance Alternative f => Alternative (Yoneda f) where
   empty = liftYoneda empty 

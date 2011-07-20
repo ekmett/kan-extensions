@@ -41,6 +41,7 @@ import Control.Monad.Trans.Class
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class as Reader
 import Control.Monad.State.Class
+import Control.Monad.Error.Class
 import Control.Monad.Writer.Class as Writer
 import Control.Monad.Identity
 import Data.Functor.Bind
@@ -127,3 +128,7 @@ instance (Comonad w, MonadWriter e m) => MonadWriter e (CoT w m) where
   pass m = CoT (pass . runCoT m . fmap aug) where 
     aug f (a,e) = liftM (\r -> (r,e)) (f a)
   listen = error "Control.Monad.Co.listen: TODO"
+
+instance (Comonad w, MonadError e m) => MonadError e (CoT w m) where
+  throwError = lift . throwError
+  catchError = error "Control.Monad.Co.catchError: TODO"

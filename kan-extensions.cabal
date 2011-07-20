@@ -1,6 +1,6 @@
 name:          kan-extensions
 category:      Data Structures, Monads, Comonads, Functors
-version:       1.9.0
+version:       2.0.0
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -31,10 +31,10 @@ library
     mtl                    >= 2.0.1.0 && < 2.1,
     comonad-transformers   >= 1.8     && < 1.9,
     comonads-fd            >= 1.8     && < 1.9,
-    adjunctions            >= 1.8     && < 1.9,
     keys                   >= 1.8     && < 1.9,
     free                   >= 1.8     && < 1.9,
-    representable-functors >= 1.8     && < 1.9
+    adjunctions            >= 2.0     && < 2.1,
+    representable-functors >= 2.0     && < 2.1
 
   exposed-modules:
     Control.Comonad.Density

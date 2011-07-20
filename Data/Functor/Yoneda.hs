@@ -38,7 +38,7 @@ import Data.Semigroup.Foldable
 import Data.Semigroup.Traversable
 import Data.Traversable
 import Text.Read hiding (lift)
-import Prelude hiding (sequence, lookup)
+import Prelude hiding (sequence, lookup, zipWith)
 
 newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b } 
 
@@ -65,6 +65,12 @@ instance Apply f => Apply (Yoneda f) where
 instance Applicative f => Applicative (Yoneda f) where
   pure a = Yoneda (\f -> pure (f a))
   Yoneda m <*> Yoneda n = Yoneda (\f -> m (f .) <*> n id)
+
+instance Zip f => Zip (Yoneda f) where
+  zipWith f (Yoneda m) (Yoneda n) = liftYoneda $ zipWith f (m id) (n id)
+
+instance ZipWithKey f => ZipWithKey (Yoneda f) where
+  zipWithKey f (Yoneda m) (Yoneda n) = liftYoneda $ zipWithKey f (m id) (n id)
 
 instance Foldable f => Foldable (Yoneda f) where
   foldMap f = foldMap f . lowerYoneda
