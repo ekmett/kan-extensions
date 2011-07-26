@@ -3,7 +3,6 @@
            , FlexibleContexts
            , UndecidableInstances
            , MultiParamTypeClasses #-}
-{-# LANGUAGE ImplicitParams #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Co

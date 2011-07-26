@@ -1,6 +1,6 @@
 name:          kan-extensions
 category:      Data Structures, Monads, Comonads, Functors
-version:       2.0.0.1
+version:       2.0.0.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -18,6 +18,16 @@ source-repository head
   location: git://github.com/ekmett/kan-extensions.git
 
 library
+  other-extensions:
+    CPP
+    MultiParamTypeClasses
+    GADTs
+    Rank2Types, 
+    FlexibleInstances
+    FlexibleContexts
+    UndecidableInstances
+    TypeFamilies
+
   build-depends: 
     array                  >= 0.3.0.2 && < 0.4,
     base                   >= 4       && < 5,
