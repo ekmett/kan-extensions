@@ -30,6 +30,10 @@ import Data.Functor.Plus
 import Data.Functor.Adjunction
 import Data.Functor.Representable
 import Data.Key
+import Data.Foldable
+import Data.Traversable
+import Data.Semigroup.Foldable
+import Data.Semigroup.Traversable
 import Prelude hiding (sequence, lookup, zipWith)
 import Text.Read hiding (lift)
 
