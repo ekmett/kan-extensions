@@ -33,7 +33,6 @@ import Data.Functor.Bind
 import Data.Functor.Adjunction
 import Data.Functor.Representable
 import Data.Key
--- import Data.Semigroup
 import Data.Semigroup.Foldable
 import Data.Semigroup.Traversable
 import Data.Traversable
