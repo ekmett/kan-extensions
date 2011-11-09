@@ -18,8 +18,8 @@
 -- http://comonad.com/reader/2011/monads-from-comonads/
 --
 ----------------------------------------------------------------------------
-module Control.Monad.Co 
-  ( 
+module Control.Monad.Co
+  (
   -- * Monads from Comonads
     Co, co, runCo
   -- * Monad Transformers from Comonads
@@ -44,6 +44,12 @@ import Control.Monad.Error.Class
 import Control.Monad.Writer.Class as Writer
 import Control.Monad.Identity
 import Data.Functor.Bind
+import Control.Concurrent.Speculation
+import Control.Concurrent.Speculation.Class
+
+instance Comonad w => MonadSpec (CoT w m) where
+  specByM f g a = CoT (\k -> specBy f g (extract k) a)
+  specByM' f g a = CoT (\k -> specBy' f g (extract k) a)
 
 type Co w = CoT w Identity
 
@@ -67,7 +73,7 @@ instance Extend w => Bind (CoT w m) where
 instance Comonad w => Applicative (CoT w m) where
   pure a = CoT (`extract` a)
   mf <*> ma = mf >>= \f -> fmap f ma
-  
+
 instance Comonad w => Monad (CoT w m) where
   return a = CoT (`extract` a)
   CoT k >>= f = CoT (k . extend (\wa a -> runCoT (f a) wa))
@@ -82,10 +88,10 @@ liftCoT0 :: Comonad w => (forall a. w a -> s) -> CoT w m s
 liftCoT0 f = CoT (extract <*> f)
 
 lowerCoT0 :: (Functor w, Monad m) => CoT w m s -> w a -> m s
-lowerCoT0 m = runCoT m . (return <$) 
+lowerCoT0 m = runCoT m . (return <$)
 
 lowerCo0 :: Functor w => Co w s -> w a -> s
-lowerCo0 m = runIdentity . runCoT m . (return <$) 
+lowerCo0 m = runIdentity . runCoT m . (return <$)
 
 liftCoT1 :: (forall a. w a -> a) -> CoT w m ()
 liftCoT1 f = CoT (`f` ())
@@ -124,7 +130,7 @@ instance (Comonad w, MonadState s m) => MonadState s (CoT w m) where
 
 instance (Comonad w, MonadWriter e m) => MonadWriter e (CoT w m) where
   tell = lift . tell
-  pass m = CoT (pass . runCoT m . fmap aug) where 
+  pass m = CoT (pass . runCoT m . fmap aug) where
     aug f (a,e) = liftM (\r -> (r,e)) (f a)
   listen = error "Control.Monad.Co.listen: TODO"
 

@@ -28,8 +28,14 @@ import Data.Functor.Adjunction
 import Data.Functor.Apply
 import Control.Monad.Trans.Class
 import Control.Monad.IO.Class
+import Control.Concurrent.Speculation
+import Control.Concurrent.Speculation.Class
 
 newtype Codensity m a = Codensity { runCodensity :: forall b. (a -> m b) -> m b }
+
+instance MonadSpec (Codensity m) where
+  specByM f g a = Codensity $ \k -> specBy f g k a
+  specByM' f g a = Codensity $ \k -> specBy' f g k a
 
 instance Functor (Codensity k) where
   fmap f (Codensity m) = Codensity (\k -> m (k . f))

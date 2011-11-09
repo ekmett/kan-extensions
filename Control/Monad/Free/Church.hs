@@ -31,6 +31,12 @@ import Control.Monad.Writer.Class
 import Control.Monad.Cont.Class
 import Control.Monad.Trans.Class
 import Control.Monad.State.Class
+import Control.Concurrent.Speculation
+import Control.Concurrent.Speculation.Class
+
+instance MonadSpec (F f) where
+  specByM f g a = F (\k _ -> specBy f g k a)
+  specByM' f g a = F (\k _ -> specBy' f g k a)
 
 newtype F f a = F { runF :: forall r. (a -> r) -> (f r -> r) -> r }
 
