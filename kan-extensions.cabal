@@ -13,6 +13,7 @@ copyright:     Copyright (C) 2011 Edward A. Kmett
 synopsis:      Kan extensions, the Yoneda lemma, and (co)density (co)monads
 description:   Kan extensions, the Yoneda lemma, and (co)density (co)monads
 build-type:    Simple
+
 extra-source-files: .travis.yml
 
 source-repository head
