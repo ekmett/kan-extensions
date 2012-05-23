@@ -15,6 +15,7 @@ module Data.Functor.KanExtension where
 import Data.Functor.Identity
 import Data.Functor.Adjunction
 import Data.Functor.Composition
+import Control.Applicative
 
 newtype Ran g h a = Ran { runRan :: forall b. (a -> g b) -> h b }
 
@@ -58,6 +59,11 @@ fromLan s = compose . s . Lan id
 
 instance Functor (Lan f g) where
   fmap f (Lan g h) = Lan (f . g) h
+
+instance (Functor g, Applicative h) => Applicative (Lan g h) where
+  pure a = Lan (const a) (pure ())
+  Lan kxf x <*> Lan kya y =
+    Lan (\k -> kxf (fmap fst k) (kya (fmap snd k))) (liftA2 (,) x y)
 
 adjointToLan :: Adjunction f g => g a -> Lan f Identity a
 adjointToLan = Lan counit . Identity
