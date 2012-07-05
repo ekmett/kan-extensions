@@ -25,6 +25,7 @@ import Control.Comonad
 import Control.Comonad.Trans.Class
 import Data.Functor.Apply
 import Data.Functor.Adjunction
+import Data.Functor.Extend
 
 data Density k a where
   Density :: (k b -> a) -> k b -> Density k a
@@ -33,9 +34,10 @@ instance Functor (Density f) where
   fmap f (Density g h) = Density (f . g) h
 
 instance Extend (Density f) where
-  duplicate (Density f ws) = Density (Density f) ws
+  duplicated (Density f ws) = Density (Density f) ws
 
 instance Comonad (Density f) where
+  duplicate (Density f ws) = Density (Density f) ws
   extract (Density f a) = f a
 
 instance ComonadTrans Density where

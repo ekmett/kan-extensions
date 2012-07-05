@@ -26,6 +26,7 @@ import Control.Comonad.Trans.Class
 import Data.Distributive
 import Data.Function (on)
 import Data.Functor.Bind
+import Data.Functor.Extend
 import Data.Functor.Plus
 import Data.Functor.Adjunction
 import Data.Functor.Representable
@@ -108,9 +109,10 @@ instance Representable f => Representable (Yoneda f) where
   tabulate = liftYoneda . tabulate
 
 instance Extend w => Extend (Yoneda w) where
-  extend k (Yoneda f v) = Yoneda id $ extend (k . Yoneda f) v
+  extended k (Yoneda f v) = Yoneda id $ extended (k . Yoneda f) v
 
 instance Comonad w => Comonad (Yoneda w) where
+  extend k (Yoneda f v) = Yoneda id $ extend (k . Yoneda f) v
   extract (Yoneda f v) = f (extract v)
 
 instance ComonadTrans Yoneda where

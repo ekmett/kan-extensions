@@ -30,6 +30,7 @@ import Data.Foldable
 import Data.Function (on)
 import Data.Functor.Plus
 import Data.Functor.Bind
+import Data.Functor.Extend
 import Data.Functor.Adjunction
 import Data.Functor.Representable
 import Data.Key
@@ -39,12 +40,12 @@ import Data.Traversable
 import Text.Read hiding (lift)
 import Prelude hiding (sequence, lookup, zipWith)
 
-newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b } 
+newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
 
-liftYoneda :: Functor f => f a -> Yoneda f a 
+liftYoneda :: Functor f => f a -> Yoneda f a
 liftYoneda a = Yoneda (\f -> fmap f a)
 
-lowerYoneda :: Yoneda f a -> f a 
+lowerYoneda :: Yoneda f a -> f a
 lowerYoneda (Yoneda f) = f id
 
 {-# RULES "lower/lift=id" liftYoneda . lowerYoneda = id #-}
@@ -56,11 +57,11 @@ instance Functor (Yoneda f) where
 type instance Key (Yoneda f) = Key f
 
 instance Keyed f => Keyed (Yoneda f) where
-  mapWithKey f = liftYoneda . mapWithKey f . lowerYoneda 
+  mapWithKey f = liftYoneda . mapWithKey f . lowerYoneda
 
 instance Apply f => Apply (Yoneda f) where
   Yoneda m <.> Yoneda n = Yoneda (\f -> m (f .) <.> n id)
-  
+
 instance Applicative f => Applicative (Yoneda f) where
   pure a = Yoneda (\f -> pure (f a))
   Yoneda m <*> Yoneda n = Yoneda (\f -> m (f .) <*> n id)
@@ -162,7 +163,7 @@ instance Alternative f => Alternative (Yoneda f) where
 
 instance Bind m => Bind (Yoneda m) where
   Yoneda m >>- k = Yoneda (\f -> m id >>- \a -> runYoneda (k a) f)
-  
+
 instance Monad m => Monad (Yoneda m) where
   return a = Yoneda (\f -> return (f a))
   Yoneda m >>= k = Yoneda (\f -> m id >>= \a -> runYoneda (k a) f)
@@ -181,10 +182,11 @@ instance (Functor f, MonadFree f m) => MonadFree f (Yoneda m) where
   wrap = lift . wrap . fmap lowerYoneda
 
 instance Extend w => Extend (Yoneda w) where
-  extend k (Yoneda m) = Yoneda (\f -> extend (f . k . liftYoneda) (m id))
+  extended k (Yoneda m) = Yoneda (\f -> extended (f . k . liftYoneda) (m id))
 
 instance Comonad w => Comonad (Yoneda w) where
-  extract = extract . lowerYoneda 
+  extend k (Yoneda m) = Yoneda (\f -> extend (f . k . liftYoneda) (m id))
+  extract = extract . lowerYoneda
 
 instance ComonadTrans Yoneda where
-  lower = lowerYoneda 
+  lower = lowerYoneda

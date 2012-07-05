@@ -1,8 +1,8 @@
-{-# LANGUAGE Rank2Types
-           , FlexibleInstances
-           , FlexibleContexts
-           , UndecidableInstances
-           , MultiParamTypeClasses #-}
+{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Co
@@ -44,6 +44,7 @@ import Control.Monad.Error.Class
 import Control.Monad.Writer.Class as Writer
 import Control.Monad.Identity
 import Data.Functor.Bind
+import Data.Functor.Extend
 import Control.Concurrent.Speculation
 import Control.Concurrent.Speculation.Class
 
@@ -68,7 +69,7 @@ instance Extend w => Apply (CoT w m) where
   mf <.> ma = mf >>- \f -> fmap f ma
 
 instance Extend w => Bind (CoT w m) where
-  CoT k >>- f = CoT (k . extend (\wa a -> runCoT (f a) wa))
+  CoT k >>- f = CoT (k . extended (\wa a -> runCoT (f a) wa))
 
 instance Comonad w => Applicative (CoT w m) where
   pure a = CoT (`extract` a)
