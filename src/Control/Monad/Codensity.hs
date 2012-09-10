@@ -26,6 +26,7 @@ import Control.Monad.Free
 import Control.Monad (ap, MonadPlus(..))
 import Data.Functor.Adjunction
 import Data.Functor.Apply
+import Data.Functor.Plus
 import Control.Monad.Trans.Class
 import Control.Monad.IO.Class
 import Control.Concurrent.Speculation
@@ -56,6 +57,22 @@ instance MonadIO m => MonadIO (Codensity m) where
 
 instance MonadTrans Codensity where
   lift m = Codensity (m >>=)
+
+instance Alt v => Alt (Codensity v) where
+  Codensity m <!> Codensity n = Codensity (\k -> m k <!> n k)
+
+instance Plus v => Plus (Codensity v) where
+  zero = Codensity (const zero)
+
+{-
+instance Plus v => Alternative (Codensity v) where
+  empty = zero
+  (<|>) = (<!>)
+
+instance Plus v => MonadPlus (Codensity v) where
+  mzero = zero
+  mplus = (<!>)
+-}
 
 instance Alternative v => Alternative (Codensity v) where
   empty                         = Codensity (\_ -> empty)
