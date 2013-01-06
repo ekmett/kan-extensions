@@ -14,7 +14,13 @@ synopsis:      Kan extensions, the Yoneda lemma, and (co)density (co)monads
 description:   Kan extensions, the Yoneda lemma, and (co)density (co)monads
 build-type:    Simple
 
-extra-source-files: .travis.yml
+extra-source-files: 
+  .travis.yml
+  .gitignore
+  .ghci
+  .vim.custom
+  CHANGELOG.markdown
+  README.markdown
 
 source-repository head
   type: git
