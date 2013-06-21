@@ -1,3 +1,7 @@
+3.1.2
+-----
+* Marked modules `Trustworthy` as required for `SafeHaskell` in the presence of these extensions.
+
 3.1.1
 -----
 * Refactored build system
