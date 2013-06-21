@@ -3,6 +3,13 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE CPP #-}
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE Trustworthy #-}
+#endif
+#ifndef MIN_VERSION_speculation
+#define MIN_VERSION_speculation(x,y,z) 1
+#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Co
@@ -50,7 +57,9 @@ import Control.Concurrent.Speculation.Class
 
 instance Comonad w => MonadSpec (CoT w m) where
   specByM f g a = CoT (\k -> specBy f g (extract k) a)
+#if !(MIN_VERSION_speculation(1,5,0))
   specByM' f g a = CoT (\k -> specBy' f g (extract k) a)
+#endif
 
 type Co w = CoT w Identity
 

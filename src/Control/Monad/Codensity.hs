@@ -1,4 +1,12 @@
 {-# LANGUAGE Rank2Types, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances #-}
+{-# LANGUAGE CPP #-}
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE Trustworthy #-}
+#endif
+
+#ifndef MIN_VERSION_speculation
+#define MIN_VERSION_speculation(x,y,z) 1
+#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Codensity
@@ -36,7 +44,9 @@ newtype Codensity m a = Codensity { runCodensity :: forall b. (a -> m b) -> m b 
 
 instance MonadSpec (Codensity m) where
   specByM f g a = Codensity $ \k -> specBy f g k a
+#if !(MIN_VERSION_speculation(1,5,0))
   specByM' f g a = Codensity $ \k -> specBy' f g k a
+#endif
 
 instance Functor (Codensity k) where
   fmap f (Codensity m) = Codensity (\k -> m (k . f))
