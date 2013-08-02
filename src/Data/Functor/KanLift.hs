@@ -13,6 +13,7 @@
 -- Stability	: experimental
 -- Portability	: rank N types
 --
+--
 -------------------------------------------------------------------------------------------
 module Data.Functor.KanLift
   (
@@ -43,19 +44,20 @@ import Data.Pointed
 -- suffer.
 --
 -- @
--- data 'UniversalRift' g f a = forall z. 'Functor' z => 'UniversalRift' (forall x. g (z x) -> f x) (z a)
+-- data 'UniversalRift' g f a = forall z. 'Functor' z =>
+--      'UniversalRift' (forall x. g (z x) -> f x) (z a)
 -- @
 --
 -- We can witness the isomorphism between Rift and UniversalRift using:
 --
 -- @
--- riftIso1 :: Functor g => UniversalRift g f a -> Rift g f a@
--- riftIso1 (UniversalRift h z) = Rift $ \g -> h $ fmap (\k -> k <$> z) g@
+-- riftIso1 :: Functor g => UniversalRift g f a -> Rift g f a
+-- riftIso1 (UniversalRift h z) = Rift $ \g -> h $ fmap (\k -> k <$> z) g
 -- @
 --
 -- @
--- riftIso2 :: Rift g f a -> UniversalRift g f a@
--- riftIso2 (Rift e) = UniversalRift e id@
+-- riftIso2 :: Rift g f a -> UniversalRift g f a
+-- riftIso2 (Rift e) = UniversalRift e id
 -- @
 --
 -- @
