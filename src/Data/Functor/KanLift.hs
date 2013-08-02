@@ -13,7 +13,9 @@
 -- Stability	: experimental
 -- Portability	: rank N types
 --
+-- Right and Left Kan lifts for functors over Hask.
 --
+-- <http://ncatlab.org/nlab/show/Kan+lift>
 -------------------------------------------------------------------------------------------
 module Data.Functor.KanLift
   (
