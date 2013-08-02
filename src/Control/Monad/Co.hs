@@ -12,7 +12,6 @@
 #endif
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Control.Monad.Co
 -- Copyright   :  (C) 2011 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
@@ -22,8 +21,14 @@
 --
 -- Monads from Comonads
 --
--- http://comonad.com/reader/2011/monads-from-comonads/
+-- <http://comonad.com/reader/2011/monads-from-comonads/>
 --
+-- 'Co' and 'CoT' just special cases of the general notion of a
+-- Right Kan lift.
+--
+-- TODO: We could consider unifying the definition of 'CoT' and 'Rift', but
+-- 'Rift' f f also forms a Codensity-like 'Monad', so there is a reasonable
+-- case for keeping them separate.
 ----------------------------------------------------------------------------
 module Control.Monad.Co
   (
@@ -69,6 +74,11 @@ co f = CoT (Identity . f . fmap (fmap runIdentity))
 runCo :: Functor w => Co w a -> w (a -> r) -> r
 runCo m = runIdentity . runCoT m . fmap (fmap Identity)
 
+-- |
+-- @
+-- 'CoT' w m a ~ 'Data.Functor.KanLift.Rift' w m a
+-- 'Co' w a ~ 'Data.Functor.KanLift.Rift' w 'Identity' a
+-- @
 newtype CoT w m a = CoT { runCoT :: forall r. w (a -> m r) -> m r }
 
 instance Functor w => Functor (CoT w m) where
