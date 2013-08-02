@@ -1,3 +1,8 @@
+3.2
+---
+* Added right and left Kan lifts under `Data.Functor.KanLift`.
+* Decreased reliance on the `Composition` class where unnecessary in the API
+
 3.1.2
 -----
 * Marked modules `Trustworthy` as required for `SafeHaskell` in the presence of these extensions.
