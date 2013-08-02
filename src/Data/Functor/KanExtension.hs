@@ -28,11 +28,11 @@ instance Functor (Ran g h) where
   fmap f m = Ran (\k -> runRan m (k . f))
  
 -- | 'toRan' and 'fromRan' witness a higher kinded adjunction. from @(`'Compose'` g)@ to @'Ran' g@
-toRan :: (Composition compose, Functor k) => (forall a. compose k g a -> h a) -> k b -> Ran g h b
-toRan s t = Ran (s . compose . flip fmap t)
+toRan :: Functor k => (forall a. k (g a) -> h a) -> k b -> Ran g h b
+toRan s t = Ran (s . flip fmap t)
 
-fromRan :: Composition compose => (forall a. k a -> Ran g h a) -> compose k g b -> h b
-fromRan s = flip runRan id . s . decompose
+fromRan :: (forall a. k a -> Ran g h a) -> k (g b) -> h b
+fromRan s = flip runRan id . s
 
 composeRan :: Composition compose => Ran f (Ran g h) a -> Ran (compose f g) h a
 composeRan r = Ran (\f -> runRan (runRan r (decompose . f)) id)
@@ -46,21 +46,21 @@ adjointToRan f = Ran (\a -> Identity $ rightAdjunct a f)
 ranToAdjoint :: Adjunction f g => Ran g Identity a -> f a
 ranToAdjoint r = runIdentity (runRan r unit)
 
-ranToComposedAdjoint :: (Composition compose, Adjunction f g) => Ran g h a -> compose h f a
-ranToComposedAdjoint r = compose (runRan r unit)
+ranToComposedAdjoint :: Adjunction f g => Ran g h a -> h (f a)
+ranToComposedAdjoint r = runRan r unit
 
-composedAdjointToRan :: (Composition compose, Adjunction f g, Functor h) => compose h f a -> Ran g h a
-composedAdjointToRan f = Ran (\a -> fmap (rightAdjunct a) (decompose f))
+composedAdjointToRan :: (Adjunction f g, Functor h) => h (f a) -> Ran g h a
+composedAdjointToRan f = Ran (\a -> fmap (rightAdjunct a) f)
 
 data Lan g h a where
   Lan :: (g b -> a) -> h b -> Lan g h a
 
 -- 'fromLan' and 'toLan' witness a (higher kinded) adjunction between @'Lan' g@ and @(`Compose` g)@
-toLan :: (Composition compose, Functor f) => (forall a. h a -> compose f g a) -> Lan g h b -> f b
-toLan s (Lan f v) = fmap f . decompose $ s v
+toLan :: Functor f => (forall a. h a -> f (g a)) -> Lan g h b -> f b
+toLan s (Lan f v) = fmap f (s v)
 
-fromLan :: (Composition compose) => (forall a. Lan g h a -> f a) -> h b -> compose f g b
-fromLan s = compose . s . Lan id
+fromLan :: (forall a. Lan g h a -> f a) -> h b -> f (g b)
+fromLan s = s . Lan id
 
 instance Functor (Lan f g) where
   fmap f (Lan g h) = Lan (f . g) h
@@ -81,11 +81,11 @@ lanToAdjoint :: Adjunction f g => Lan f Identity a -> g a
 lanToAdjoint (Lan f v) = leftAdjunct f (runIdentity v)
 
 -- | 'lanToComposedAdjoint' and 'composedAdjointToLan' witness the natural isomorphism between @Lan f h@ and @Compose h g@ given @f -| g@
-lanToComposedAdjoint :: (Composition compose, Functor h, Adjunction f g) => Lan f h a -> compose h g a
-lanToComposedAdjoint (Lan f v) = compose (fmap (leftAdjunct f) v)
+lanToComposedAdjoint :: (Functor h, Adjunction f g) => Lan f h a -> h (g a)
+lanToComposedAdjoint (Lan f v) = fmap (leftAdjunct f) v
 
-composedAdjointToLan :: Composition compose => Adjunction f g => compose h g a -> Lan f h a
-composedAdjointToLan = Lan counit . decompose
+composedAdjointToLan :: Adjunction f g => h (g a) -> Lan f h a
+composedAdjointToLan = Lan counit
 
 -- | 'composeLan' and 'decomposeLan' witness the natural isomorphism from @Lan f (Lan g h)@ and @Lan (f `o` g) h@
 composeLan :: (Composition compose, Functor f) => Lan f (Lan g h) a -> Lan (compose f g) h a
