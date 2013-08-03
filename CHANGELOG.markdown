@@ -1,3 +1,7 @@
+3.3
+---
+* Rift is now `Applicative`. Added `rap`.
+
 3.2
 ---
 * Added right and left Kan lifts under `Data.Functor.KanLift`.

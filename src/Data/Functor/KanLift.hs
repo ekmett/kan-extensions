@@ -23,6 +23,7 @@ module Data.Functor.KanLift
     Rift(..)
   , grift
   , universalRift
+  , rap
   -- * Left Kan lifts
   , Lift(..)
   , glift
@@ -41,7 +42,7 @@ import Data.Pointed
 --
 -- @g . 'Rift' g f => f@
 --
--- This could alternately be defined directly from the universal propertly
+-- This could alternately be defined directly from the (co)universal propertly
 -- in which case, we'd get 'universalRift' = 'UniversalRift', but then the usage would
 -- suffer.
 --
@@ -73,7 +74,31 @@ import Data.Pointed
 --
 -- The other direction is left as an exercise for the reader.
 --
--- /NB:/ This is the same construction that gives rise to @'Control.Monad.Co.CoT'@.
+-- There are several monads that we can form from @Rift@.
+--
+-- When @g@ is corepresentable (e.g. is a right adjoint) then there exists @x@ such that @g ~ (->) x@, then it follows that
+--
+-- @
+-- Rift g g a ~
+-- forall r. (x -> a -> r) -> x -> r ~
+-- forall r. (a -> x -> r) -> x -> r ~
+-- forall r. (a -> g r) -> g r ~
+-- Codensity g r
+-- @
+--
+-- When @f@ is a left adjoint, so that @f -| g@ then
+--
+-- @
+-- Rift f f a ~
+-- forall r. f (a -> r) -> f r ~
+-- forall r. (a -> r) -> g (f r) ~
+-- forall r. (a -> r) -> Adjoint f g r ~
+-- Yoneda (Adjoint f g r)
+-- @
+--
+-- @'Rift' w f ~ 'Control.Monad.Co.CoT' w f@ can be a 'Monad' for any 'Comonad' @w@
+--
+-- @'Rift' 'Identity' m@ can be a 'Monad' for any 'Monad' @m@, as it is isomorphic to @'Yoneda' m@.
 
 newtype Rift g h a =
   Rift { runRift :: forall r. g (a -> r) -> h r }
@@ -85,6 +110,16 @@ instance Functor g => Functor (Rift g h) where
 instance (Functor g, g ~ h) => Pointed (Rift g h) where
   point a = Rift (fmap ($a))
   {-# INLINE point #-}
+
+instance (Functor g, g ~ h) => Applicative (Rift g h) where
+  pure a = Rift (fmap ($a))
+  {-# INLINE pure #-}
+  Rift mf <*> Rift ma = Rift (ma . mf . fmap (.))
+  {-# INLINE (<*>) #-}
+
+-- | Indexed applicative composition of right Kan lifts.
+rap :: Functor f => Rift f g (a -> b) -> Rift g h a -> Rift f h b
+rap (Rift mf) (Rift ma) = Rift (ma . mf . fmap (.))
 
 grift :: Adjunction f _r => f (Rift f k a) -> k a
 grift = rightAdjunct (\r -> leftAdjunct (runRift r) id)
