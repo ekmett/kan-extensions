@@ -2,8 +2,8 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
 
--- {-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE ImplicitParams #-}
+--{-# LANGUAGE NoMonomorphismRestriction #-}
+--{-# LANGUAGE ImplicitParams #-}
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
@@ -251,6 +251,14 @@ adjointToLift fa = Lift $ \k -> rightAdjunct (k . Identity) fa
 liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
 liftToAdjoint = toLift (unit . runIdentity)
 {-# INLINE liftToAdjoint #-}
+
+composeLift :: (Composition compose, Functor f, Functor g) => Lift f (Lift g h) a -> Lift (compose g f) h a
+composeLift (Lift m) = Lift $ \h -> m $ \l -> decompose $ runLift l (fmap Compose . decompose . h)
+{-# INLINE composeLift #-}
+
+-- decomposeLift :: Lift (compose g f) h a -> Lift f (Lift g h) a
+-- decomposeLift (Lift m) = Lift $ \h -> ?wut m h
+
 
 -- |
 --
