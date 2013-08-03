@@ -164,17 +164,6 @@ riftToAdjoint :: Adjunction f u => Rift f Identity a -> u a
 riftToAdjoint (Rift m) = leftAdjunct (runIdentity . m) id
 {-# INLINE riftToAdjoint #-}
 
-
-{-
-adjointToRift :: Adjunction f u => f a -> Rift u Identity a
-adjointToRift fa = Rift $ \uar -> Identity $ rightAdjunct (\a -> fmap ($a) uar) fa
-{-# INLINE adjointToRift #-}
-
-riftToAdjoint :: Adjunction f u => Rift u Identity a -> f a
-riftToAdjoint (Rift m) = runIdentity $ m $ leftAdjunct (\far a -> fmap ($a) far) id
-{-# INLINE riftToAdjoint #-}
--}
-
 -- |
 --
 -- @
