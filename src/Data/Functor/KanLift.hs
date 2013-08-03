@@ -14,7 +14,7 @@
 -- Stability	: experimental
 -- Portability	: rank N types
 --
--- Right and Left Kan lifts for functors over Hask.
+-- Right and Left Kan lifts for functors over Hask, where they exist.
 --
 -- <http://ncatlab.org/nlab/show/Kan+lift>
 -------------------------------------------------------------------------------------------
@@ -193,6 +193,7 @@ riftToComposedAdjoint :: Adjunction f u => Rift f h a -> u (h a)
 riftToComposedAdjoint (Rift m) = leftAdjunct m id
 {-# INLINE riftToComposedAdjoint #-}
 
+-- | @Rift f h a@ is isomorphic to the post-composition of the right adjoint of @f@ onto @h@ if such a right adjoint exists.
 composedAdjointToRift :: (Functor h, Adjunction f u) => u (h a) -> Rift f h a
 composedAdjointToRift uha = Rift $ rightAdjunct (\b -> fmap b <$> uha)
 {-# INLINE composedAdjointToRift #-}
