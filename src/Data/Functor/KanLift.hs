@@ -3,7 +3,7 @@
 {-# LANGUAGE GADTs #-}
 
 -- {-# LANGUAGE NoMonomorphismRestriction #-}
--- {-# LANGUAGE ImplicitParams #-}
+{-# LANGUAGE ImplicitParams #-}
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
@@ -35,12 +35,15 @@ module Data.Functor.KanLift
   , glift
   , toLift, fromLift
   , adjointToLift, liftToAdjoint
+  , liftToComposedAdjoint
   ) where
 
 import Control.Applicative
 import Data.Copointed
+import Data.Distributive
 import Data.Functor.Adjunction
 import Data.Functor.Composition
+import Data.Functor.Compose
 import Data.Functor.Identity
 import Data.Pointed
 
@@ -249,3 +252,7 @@ adjointToLift fa = Lift $ \k -> rightAdjunct (k . Identity) fa
 liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
 liftToAdjoint = toLift (unit . runIdentity)
 {-# INLINE liftToAdjoint #-}
+
+liftToComposedAdjoint :: (Adjunction f u, Functor h) => Lift u h a -> h (f a)
+liftToComposedAdjoint m = decompose $ runLift m (fmap Compose . collect unit)
+{-# INLINE liftToComposedAdjoint #-}
