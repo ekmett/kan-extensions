@@ -35,7 +35,7 @@ module Data.Functor.KanLift
   , glift
   , toLift, fromLift
   , adjointToLift, liftToAdjoint
-  , liftToComposedAdjoint
+  , liftToComposedAdjoint, composedAdjointToLift
   ) where
 
 import Control.Applicative
@@ -204,8 +204,7 @@ composedAdjointToRift hfa = Rift $ \uar -> rightAdjunct (\b -> fmap ($b) uar) <$
 -- > (forall z. f => g . z) -> Lift g f => z -- couniversal
 --
 -- Here we use the universal property directly as how we extract from our definition of 'Lift'.
-newtype Lift g f a =
-  Lift { runLift :: forall z. Functor z => (forall x. f x -> g (z x)) -> z a }
+newtype Lift g f a = Lift { runLift :: forall z. Functor z => (forall x. f x -> g (z x)) -> z a }
 
 instance Functor (Lift g h) where
   fmap f (Lift g) = Lift (fmap f . g)
@@ -253,6 +252,16 @@ liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
 liftToAdjoint = toLift (unit . runIdentity)
 {-# INLINE liftToAdjoint #-}
 
-liftToComposedAdjoint :: (Adjunction f u, Functor h) => Lift u h a -> h (f a)
-liftToComposedAdjoint m = decompose $ runLift m (fmap Compose . collect unit)
+-- |
+--
+-- @
+-- 'liftToComposedAdjoint' . 'composedAdjointToLift' ≡ 'id'
+-- 'composedAdjointToLift' . 'liftToComposedAdjoint' ≡ 'id'
+-- @
+liftToComposedAdjoint :: (Adjunction f u, Functor h) => Lift u h a -> f (h a)
+liftToComposedAdjoint (Lift m) = decompose $ m (leftAdjunct Compose)
 {-# INLINE liftToComposedAdjoint #-}
+
+composedAdjointToLift :: Adjunction f u => f (h a) -> Lift u h a
+composedAdjointToLift = rightAdjunct glift
+{-# INLINE composedAdjointToLift #-}
