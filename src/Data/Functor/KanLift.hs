@@ -150,7 +150,7 @@ fromRift :: Adjunction f u => (forall a. k a -> Rift f h a) -> f (k b) -> h b
 fromRift f = grift . fmap f
 {-# INLINE fromRift #-}
 
--- | This isomorphism is witnessed by 'adjointToRift' and 'riftToAdjoint'
+-- | @Rift f Identity a@ is isomorphic to the right adjoint to @f@ if one exists.
 --
 -- @
 -- 'adjointToRift' . 'riftToAdjoint' ≡ 'id'
@@ -160,6 +160,7 @@ adjointToRift :: Adjunction f u => u a -> Rift f Identity a
 adjointToRift ua = Rift (Identity . rightAdjunct (<$> ua))
 {-# INLINE adjointToRift #-}
 
+-- | @Rift f Identity a@ is isomorphic to the right adjoint to @f@ if one exists.
 riftToAdjoint :: Adjunction f u => Rift f Identity a -> u a
 riftToAdjoint (Rift m) = leftAdjunct (runIdentity . m) id
 {-# INLINE riftToAdjoint #-}
@@ -248,7 +249,7 @@ decomposeLift :: (Composition compose, Adjunction l g) => Lift (compose g f) h a
 decomposeLift (Lift m) = Lift $ \h -> m (compose . fmap h . glift)
 {-# INLINE decomposeLift #-}
 
--- |
+-- | @Lift u Identity a@ is isomorphic to the left adjoint to @u@ if one exists.
 --
 -- @
 -- 'adjointToLift' . 'liftToAdjoint' ≡ 'id'
@@ -258,11 +259,12 @@ adjointToLift :: Adjunction f u => f a -> Lift u Identity a
 adjointToLift fa = Lift $ \k -> rightAdjunct (k . Identity) fa
 {-# INLINE adjointToLift #-}
 
+-- | @Lift u Identity a@ is isomorphic to the left adjoint to @u@ if one exists.
 liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
 liftToAdjoint = toLift (unit . runIdentity)
 {-# INLINE liftToAdjoint #-}
 
--- |
+-- | @Lift u h a@ is isomorphic to the post-composition of the left adjoint of @u@ onto @h@ if such a left adjoint exists.
 --
 -- @
 -- 'liftToComposedAdjoint' . 'composedAdjointToLift' ≡ 'id'
@@ -272,6 +274,7 @@ liftToComposedAdjoint :: (Adjunction f u, Functor h) => Lift u h a -> f (h a)
 liftToComposedAdjoint (Lift m) = decompose $ m (leftAdjunct Compose)
 {-# INLINE liftToComposedAdjoint #-}
 
+-- | @Lift u h a@ is isomorphic to the post-composition of the left adjoint of @u@ onto @h@ if such a left adjoint exists.
 composedAdjointToLift :: Adjunction f u => f (h a) -> Lift u h a
 composedAdjointToLift = rightAdjunct glift
 {-# INLINE composedAdjointToLift #-}
