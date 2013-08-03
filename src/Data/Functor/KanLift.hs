@@ -2,6 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
 
+-- {-# LANGUAGE NoMonomorphismRestriction #-}
 -- {-# LANGUAGE ImplicitParams #-}
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
@@ -33,6 +34,7 @@ module Data.Functor.KanLift
   , Lift(..)
   , glift
   , toLift, fromLift
+  , adjointToLift
   ) where
 
 import Control.Applicative
@@ -222,6 +224,8 @@ toLift :: Functor z => (forall a. f a -> g (z a)) -> Lift g f b -> z b
 toLift = flip runLift
 {-# INLINE toLift #-}
 
+-- toLift decompose :: Compose f => Lift g (compose g f) a -> f a
+
 -- | When the adjunction exists
 --
 -- @
@@ -232,4 +236,8 @@ fromLift :: Adjunction l u => (forall a. Lift u f a -> z a) -> f b -> u (z b)
 fromLift f = fmap f . glift
 {-# INLINE fromLift #-}
 
--- adjointToLift :: Adjunction f u => u a -> Lift f Identity a
+adjointToLift :: Adjunction f u => f a -> Lift u Identity a
+adjointToLift fa = Lift $ \k -> rightAdjunct (k . Identity) fa
+{-# INLINE adjointToLift #-}
+
+-- liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
