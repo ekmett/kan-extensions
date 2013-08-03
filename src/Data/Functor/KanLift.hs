@@ -2,9 +2,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
 
---{-# LANGUAGE NoMonomorphismRestriction #-}
---{-# LANGUAGE ImplicitParams #-}
-
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -25,22 +22,21 @@ module Data.Functor.KanLift
   (
   -- * Right Kan lifts
     Rift(..)
-  , toRift, fromRift
+  , toRift, fromRift, grift
   , composeRift, decomposeRift
   , adjointToRift, riftToAdjoint
   , composedAdjointToRift, riftToComposedAdjoint
-  , grift, rap
+  , rap
   -- * Left Kan lifts
   , Lift(..)
-  , glift
-  , toLift, fromLift
+  , toLift, fromLift, glift
+  , composeLift, decomposeLift
   , adjointToLift, liftToAdjoint
   , liftToComposedAdjoint, composedAdjointToLift
   ) where
 
 import Control.Applicative
 import Data.Copointed
-import Data.Distributive
 import Data.Functor.Adjunction
 import Data.Functor.Composition
 import Data.Functor.Compose
@@ -241,6 +237,20 @@ fromLift f = fmap f . glift
 -- |
 --
 -- @
+-- 'composeLift' . 'decomposeLift' = 'id'
+-- 'decomposeLift' . 'composeLift' = 'id'
+-- @
+composeLift :: (Composition compose, Functor f, Functor g) => Lift f (Lift g h) a -> Lift (compose g f) h a
+composeLift (Lift m) = Lift $ \h -> m $ decompose . toLift (fmap Compose . decompose . h)
+{-# INLINE composeLift #-}
+
+decomposeLift :: (Composition compose, Adjunction l g) => Lift (compose g f) h a -> Lift f (Lift g h) a
+decomposeLift (Lift m) = Lift $ \h -> m (compose . fmap h . glift)
+{-# INLINE decomposeLift #-}
+
+-- |
+--
+-- @
 -- 'adjointToLift' . 'liftToAdjoint' ≡ 'id'
 -- 'liftToAdjoint' . 'adjointToLift' ≡ 'id'
 -- @
@@ -251,14 +261,6 @@ adjointToLift fa = Lift $ \k -> rightAdjunct (k . Identity) fa
 liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
 liftToAdjoint = toLift (unit . runIdentity)
 {-# INLINE liftToAdjoint #-}
-
-composeLift :: (Composition compose, Functor f, Functor g) => Lift f (Lift g h) a -> Lift (compose g f) h a
-composeLift (Lift m) = Lift $ \h -> m $ \l -> decompose $ runLift l (fmap Compose . decompose . h)
-{-# INLINE composeLift #-}
-
--- decomposeLift :: Lift (compose g f) h a -> Lift f (Lift g h) a
--- decomposeLift (Lift m) = Lift $ \h -> ?wut m h
-
 
 -- |
 --
