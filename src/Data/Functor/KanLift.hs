@@ -131,6 +131,7 @@ instance (Functor g, g ~ h) => Applicative (Rift g h) where
 -- | Indexed applicative composition of right Kan lifts.
 rap :: Functor f => Rift f g (a -> b) -> Rift g h a -> Rift f h b
 rap (Rift mf) (Rift ma) = Rift (ma . mf . fmap (.))
+{-# INLINE rap #-}
 
 grift :: Adjunction f u => f (Rift f k a) -> k a
 grift = rightAdjunct (\r -> leftAdjunct (runRift r) id)
