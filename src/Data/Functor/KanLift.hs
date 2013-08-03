@@ -34,7 +34,7 @@ module Data.Functor.KanLift
   , Lift(..)
   , glift
   , toLift, fromLift
-  , adjointToLift
+  , adjointToLift, liftToAdjoint
   ) where
 
 import Control.Applicative
@@ -229,15 +229,23 @@ toLift = flip runLift
 -- | When the adjunction exists
 --
 -- @
--- 'fromLift' . 'toLift' = 'id'
--- 'toLift' . 'fromLift' = 'id'
+-- 'fromLift' . 'toLift' ≡ 'id'
+-- 'toLift' . 'fromLift' ≡ 'id'
 -- @
 fromLift :: Adjunction l u => (forall a. Lift u f a -> z a) -> f b -> u (z b)
 fromLift f = fmap f . glift
 {-# INLINE fromLift #-}
 
+-- |
+--
+-- @
+-- 'adjointToLift' . 'liftToAdjoint' ≡ 'id'
+-- 'liftToAdjoint' . 'adjointToLift' ≡ 'id'
+-- @
 adjointToLift :: Adjunction f u => f a -> Lift u Identity a
 adjointToLift fa = Lift $ \k -> rightAdjunct (k . Identity) fa
 {-# INLINE adjointToLift #-}
 
--- liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
+liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
+liftToAdjoint = toLift (unit . runIdentity)
+{-# INLINE liftToAdjoint #-}
