@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
+
+{-# LANGUAGE ImplicitParams #-}
+
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -21,10 +24,11 @@ module Data.Functor.KanLift
   (
   -- * Right Kan lifts
     Rift(..)
-  , toRift
-  , fromRift
-  , grift
-  , rap
+  , toRift, fromRift
+  , composeRift, decomposeRift
+  , adjointToRift, riftToAdjoint
+  , composedAdjointToRift, riftToComposedAdjoint
+  , grift, rap
   -- * Left Kan lifts
   , Lift(..)
   , glift
@@ -33,8 +37,9 @@ module Data.Functor.KanLift
 
 import Control.Applicative
 import Data.Copointed
-import Data.Functor.Identity
 import Data.Functor.Adjunction
+import Data.Functor.Composition
+import Data.Functor.Identity
 import Data.Pointed
 
 -- * Right Kan Lift
@@ -120,6 +125,14 @@ instance (Functor g, g ~ h) => Applicative (Rift g h) where
   Rift mf <*> Rift ma = Rift (ma . mf . fmap (.))
   {-# INLINE (<*>) #-}
 
+-- | Indexed applicative composition of right Kan lifts.
+rap :: Functor f => Rift f g (a -> b) -> Rift g h a -> Rift f h b
+rap (Rift mf) (Rift ma) = Rift (ma . mf . fmap (.))
+
+grift :: Adjunction f u => f (Rift f k a) -> k a
+grift = rightAdjunct (\r -> leftAdjunct (runRift r) id)
+{-# INLINE grift #-}
+
 -- | The universal property of 'Rift'
 toRift :: (Functor g, Functor k) => (forall x. g (k x) -> h x) -> k a -> Rift g h a
 toRift h z = Rift $ \g -> h $ fmap (<$> z) g
@@ -129,23 +142,55 @@ toRift h z = Rift $ \g -> h $ fmap (<$> z) g
 -- When @f -| u@, then @f -| Rift f Identity@ and
 --
 -- @
--- 'toRift' . 'fromRift' = id
--- 'fromRift' . 'toRift' = id
+-- 'toRift' . 'fromRift' ≡ 'id'
+-- 'fromRift' . 'toRift' ≡ 'id'
 -- @
 fromRift :: Adjunction f u => (forall a. k a -> Rift f h a) -> f (k b) -> h b
-fromRift k2r gk = grift (fmap k2r gk)
+fromRift f = grift . fmap f
 {-# INLINE fromRift #-}
 
--- fromRan :: (forall a. k a -> Ran g h a) -> k (g b) -> h b
--- fromRan s = flip runRan id . s
+-- | When @f -| u@, then @f ~ Rift u Identity@. This isomorphism is witnessed by 'adjointToRift' and 'riftToAdjoint'
+--
+-- @
+-- 'adjointToRift' . 'riftToAdjoint' ≡ 'id'
+-- 'riftToAdjoint' . 'adjointToRift' ≡ 'id'
+-- @
+adjointToRift :: Adjunction f u => f a -> Rift u Identity a
+adjointToRift fa = Rift $ \uar -> Identity $ rightAdjunct (\b -> fmap ($b) uar) fa
+{-# INLINE adjointToRift #-}
 
--- | Indexed applicative composition of right Kan lifts.
-rap :: Functor f => Rift f g (a -> b) -> Rift g h a -> Rift f h b
-rap (Rift mf) (Rift ma) = Rift (ma . mf . fmap (.))
+riftToAdjoint :: Adjunction f u => Rift u Identity a -> f a
+riftToAdjoint (Rift m) = runIdentity $ m $ leftAdjunct (\far a -> fmap ($a) far) id
+{-# INLINE riftToAdjoint #-}
 
-grift :: Adjunction f u => f (Rift f k a) -> k a
-grift = rightAdjunct (\r -> leftAdjunct (runRift r) id)
-{-# INLINE grift #-}
+-- |
+--
+-- @
+-- 'composeRift' . 'decomposeRift' ≡ 'id'
+-- 'decomposeRift' . 'composeRift' ≡ 'id'
+-- @
+composeRift :: (Composition compose, Adjunction g u) => Rift f (Rift g h) a -> Rift (compose g f) h a
+composeRift (Rift f) = Rift (grift . fmap f . decompose)
+{-# INLINE composeRift #-}
+
+decomposeRift :: (Composition compose, Functor f, Functor g) => Rift (compose g f) h a -> Rift f (Rift g h) a
+decomposeRift (Rift f) = Rift $ \far -> Rift (f . compose . fmap (\rs -> fmap (rs.) far))
+{-# INLINE decomposeRift #-}
+
+-- |
+--
+-- @
+-- 'riftToComposedAdjoint' . 'composedAdjointToRift' ≡ 'id'
+-- 'composedAdjointTorift' . 'riftToComposedAdjoint' ≡ 'id'
+-- @
+
+riftToComposedAdjoint :: Adjunction f u => Rift u h a -> h (f a)
+riftToComposedAdjoint (Rift m) = m $ leftAdjunct (\far a -> fmap ($a) far) id
+{-# INLINE riftToComposedAdjoint #-}
+
+composedAdjointToRift :: (Adjunction f u, Functor h) => h (f a) -> Rift u h a
+composedAdjointToRift hfa = Rift $ \uar -> rightAdjunct (\b -> fmap ($b) uar) <$> hfa
+{-# INLINE composedAdjointToRift #-}
 
 -- * Left Kan Lift
 
@@ -176,3 +221,6 @@ glift = leftAdjunct (\lka -> Lift (\k2gz -> rightAdjunct k2gz lka))
 universalLift :: Functor z => Lift g f y -> (forall x. f x -> g (z x)) -> z y
 universalLift = runLift
 {-# INLINE universalLift #-}
+
+-- * Utilities
+
