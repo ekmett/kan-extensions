@@ -197,16 +197,6 @@ composedAdjointToRift :: (Functor h, Adjunction f u) => u (h a) -> Rift f h a
 composedAdjointToRift uha = Rift $ rightAdjunct (\b -> fmap b <$> uha)
 {-# INLINE composedAdjointToRift #-}
 
-{-
-riftToComposedAdjoint :: Adjunction f u => Rift u h a -> h (f a)
-riftToComposedAdjoint (Rift m) = m $ leftAdjunct (\far a -> fmap ($a) far) id
-{-# INLINE riftToComposedAdjoint #-}
-
-composedAdjointToRift :: (Adjunction f u, Functor h) => h (f a) -> Rift u h a
-composedAdjointToRift hfa = Rift $ \uar -> rightAdjunct (\b -> fmap ($b) uar) <$> hfa
-{-# INLINE composedAdjointToRift #-}
--}
-
 -- * Left Kan Lift
 
 -- |
