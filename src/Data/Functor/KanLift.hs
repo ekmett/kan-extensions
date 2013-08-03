@@ -2,6 +2,8 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
 
+{-# LANGUAGE ImplicitParams #-}
+
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -179,13 +181,24 @@ decomposeRift :: (Composition compose, Functor f, Functor g) => Rift (compose g 
 decomposeRift (Rift f) = Rift $ \far -> Rift (f . compose . fmap (\rs -> fmap (rs.) far))
 {-# INLINE decomposeRift #-}
 
+
 -- |
+-- | @Rift f h a@ is isomorphic to the post-composition of the right adjoint of @f@ onto @h@ if such a right adjoint exists.
 --
 -- @
 -- 'riftToComposedAdjoint' . 'composedAdjointToRift' ≡ 'id'
--- 'composedAdjointTorift' . 'riftToComposedAdjoint' ≡ 'id'
+-- 'composedAdjointToRift' . 'riftToComposedAdjoint' ≡ 'id'
 -- @
 
+riftToComposedAdjoint :: Adjunction f u => Rift f h a -> u (h a)
+riftToComposedAdjoint (Rift m) = leftAdjunct m id
+{-# INLINE riftToComposedAdjoint #-}
+
+composedAdjointToRift :: (Functor h, Adjunction f u) => u (h a) -> Rift f h a
+composedAdjointToRift uha = Rift $ rightAdjunct (\b -> fmap b <$> uha)
+{-# INLINE composedAdjointToRift #-}
+
+{-
 riftToComposedAdjoint :: Adjunction f u => Rift u h a -> h (f a)
 riftToComposedAdjoint (Rift m) = m $ leftAdjunct (\far a -> fmap ($a) far) id
 {-# INLINE riftToComposedAdjoint #-}
@@ -193,6 +206,7 @@ riftToComposedAdjoint (Rift m) = m $ leftAdjunct (\far a -> fmap ($a) far) id
 composedAdjointToRift :: (Adjunction f u, Functor h) => h (f a) -> Rift u h a
 composedAdjointToRift hfa = Rift $ \uar -> rightAdjunct (\b -> fmap ($b) uar) <$> hfa
 {-# INLINE composedAdjointToRift #-}
+-}
 
 -- * Left Kan Lift
 
