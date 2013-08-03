@@ -44,23 +44,24 @@ import Control.Applicative
 -- the definition in of a right Kan extension in terms of an End, but we can derive an equivalent definition
 -- from the universal property.
 --
--- Given a 'Functor' @h : C -> D@@ and a 'Functor' @g : C -> C'@, we want to find extend @h@ /back/ along @g@
--- to give @Ran g h : C' -> C@. In some sense this is trying to approximate the inverse of @g@ by using one of
+-- Given a 'Functor' @h : C -> D@ and a 'Functor' @g : C -> C'@, we want to find extend @h@ /back/ along @g@
+-- to give @Ran g h : C' -> C@, such that the natural transformation @'gran' :: Ran g h (g a) -> h a@ exists.
+--
+-- In some sense this is trying to approximate the inverse of @g@ by using one of
 -- its adjoints, because if the adjoint and the inverse both exist, they match!
 --
--- Hask -h-> Hask
---  |      +
---  g     /
---  |    Ran g h
---  v   /
--- Hask
---
--- such that the natural transformation @gran :: Ran g h (g a) -> h a@ exists.
+-- > Hask -h-> Hask
+-- >   |       +
+-- >   g      /
+-- >   |    Ran g h
+-- >   v    /
+-- > Hask -'
 --
 -- The Right Kan extension is unique (up to isomorphism) by taking this as its universal property.
 --
--- That is to say given any other @K : C' -> C@ if we have a natural transformation from @K.G to H@
--- @(forall x. k (g x) -> h x)@ there exists a canonical morphism from @k b -> Ran g h b@.
+-- That is to say given any @K : C' -> C@ such that we have a natural transformation from @k.g@ to @h@
+-- @(forall x. k (g x) -> h x)@ there exists a canonical natural transformation from @k@ to @Ran g h@.
+-- @(forall x. k x -> Ran g h x)@.
 --
 -- We could literally read this off as a valid Rank-3 definition for 'Ran':
 --
@@ -210,5 +211,6 @@ composeLan (Lan f (Lan g h)) = Lan (f . fmap g . decompose) h
 decomposeLan :: Composition compose => Lan (compose f g) h a -> Lan f (Lan g h) a
 decomposeLan (Lan f h) = Lan (f . compose) (Lan id h)
 
+-- | This is the natural transformation that defines a Left Kan extension.
 glan :: h a -> Lan g h (g a)
 glan = Lan id
