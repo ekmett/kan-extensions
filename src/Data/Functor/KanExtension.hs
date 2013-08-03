@@ -26,7 +26,7 @@ newtype Ran g h a = Ran { runRan :: forall b. (a -> g b) -> h b }
 
 instance Functor (Ran g h) where
   fmap f m = Ran (\k -> runRan m (k . f))
- 
+
 -- | 'toRan' and 'fromRan' witness a higher kinded adjunction. from @(`'Compose'` g)@ to @'Ran' g@
 toRan :: Functor k => (forall a. k (g a) -> h a) -> k b -> Ran g h b
 toRan s t = Ran (s . flip fmap t)

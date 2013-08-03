@@ -21,8 +21,9 @@ module Data.Functor.KanLift
   (
   -- * Right Kan lifts
     Rift(..)
+  , toRift
+  , fromRift
   , grift
-  , universalRift
   , rap
   -- * Left Kan lifts
   , Lift(..)
@@ -43,7 +44,7 @@ import Data.Pointed
 -- @g . 'Rift' g f => f@
 --
 -- This could alternately be defined directly from the (co)universal propertly
--- in which case, we'd get 'universalRift' = 'UniversalRift', but then the usage would
+-- in which case, we'd get 'toRift' = 'UniversalRift', but then the usage would
 -- suffer.
 --
 -- @
@@ -96,7 +97,9 @@ import Data.Pointed
 -- Yoneda (Adjoint f g r)
 -- @
 --
--- @'Rift' w f ~ 'Control.Monad.Co.CoT' w f@ can be a 'Monad' for any 'Comonad' @w@
+-- An alternative way to view that is to note that whenever @f@ is a left adjoint then @f -| 'Rift' f 'Identity'@, and since @'Rift' f f@ is isomorphic to @'Rift' f 'Identity' (f a)@, this is the 'Monad' formed by the adjunction.
+--
+-- @'Rift' w f ~ 'Control.Monad.Co.CoT' w f@ can be a 'Monad' for any 'Comonad' @w@.
 --
 -- @'Rift' 'Identity' m@ can be a 'Monad' for any 'Monad' @m@, as it is isomorphic to @'Yoneda' m@.
 
@@ -117,18 +120,32 @@ instance (Functor g, g ~ h) => Applicative (Rift g h) where
   Rift mf <*> Rift ma = Rift (ma . mf . fmap (.))
   {-# INLINE (<*>) #-}
 
+-- | The universal property of 'Rift'
+toRift :: (Functor g, Functor k) => (forall x. g (k x) -> h x) -> k a -> Rift g h a
+toRift h z = Rift $ \g -> h $ fmap (<$> z) g
+{-# INLINE toRift #-}
+
+-- |
+-- When @f -| u@, then @f -| Rift f Identity@ and
+--
+-- @
+-- 'toRift' . 'fromRift' = id
+-- 'fromRift' . 'toRift' = id
+-- @
+fromRift :: Adjunction f u => (forall a. k a -> Rift f h a) -> f (k b) -> h b
+fromRift k2r gk = grift (fmap k2r gk)
+{-# INLINE fromRift #-}
+
+-- fromRan :: (forall a. k a -> Ran g h a) -> k (g b) -> h b
+-- fromRan s = flip runRan id . s
+
 -- | Indexed applicative composition of right Kan lifts.
 rap :: Functor f => Rift f g (a -> b) -> Rift g h a -> Rift f h b
 rap (Rift mf) (Rift ma) = Rift (ma . mf . fmap (.))
 
-grift :: Adjunction f _r => f (Rift f k a) -> k a
+grift :: Adjunction f u => f (Rift f k a) -> k a
 grift = rightAdjunct (\r -> leftAdjunct (runRift r) id)
 {-# INLINE grift #-}
-
--- | The universal property of 'Rift'
-universalRift :: (Functor g, Functor z) => (forall x. g (z x) -> f x) -> z y -> Rift g f y
-universalRift h z = Rift $ \g -> h $ fmap (<$> z) g
-{-# INLINE universalRift #-}
 
 -- * Left Kan Lift
 
