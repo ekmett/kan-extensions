@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
 
-{-# LANGUAGE ImplicitParams #-}
+-- {-# LANGUAGE ImplicitParams #-}
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
@@ -32,7 +32,7 @@ module Data.Functor.KanLift
   -- * Left Kan lifts
   , Lift(..)
   , glift
-  , universalLift
+  , toLift, fromLift
   ) where
 
 import Control.Applicative
@@ -218,9 +218,18 @@ glift = leftAdjunct (\lka -> Lift (\k2gz -> rightAdjunct k2gz lka))
 {-# INLINE glift #-}
 
 -- | The universal property of 'Lift'
-universalLift :: Functor z => Lift g f y -> (forall x. f x -> g (z x)) -> z y
-universalLift = runLift
-{-# INLINE universalLift #-}
+toLift :: Functor z => (forall a. f a -> g (z a)) -> Lift g f b -> z b
+toLift = flip runLift
+{-# INLINE toLift #-}
 
--- * Utilities
+-- | When the adjunction exists
+--
+-- @
+-- 'fromLift' . 'toLift' = 'id'
+-- 'toLift' . 'fromLift' = 'id'
+-- @
+fromLift :: Adjunction l u => (forall a. Lift u f a -> z a) -> f b -> u (z b)
+fromLift f = fmap f . glift
+{-# INLINE fromLift #-}
 
+-- adjointToLift :: Adjunction f u => u a -> Lift f Identity a
