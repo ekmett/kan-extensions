@@ -150,19 +150,30 @@ fromRift :: Adjunction f u => (forall a. k a -> Rift f h a) -> f (k b) -> h b
 fromRift f = grift . fmap f
 {-# INLINE fromRift #-}
 
--- | When @f -| u@, then @f ~ Rift u Identity@. This isomorphism is witnessed by 'adjointToRift' and 'riftToAdjoint'
+-- | This isomorphism is witnessed by 'adjointToRift' and 'riftToAdjoint'
 --
 -- @
 -- 'adjointToRift' . 'riftToAdjoint' ≡ 'id'
 -- 'riftToAdjoint' . 'adjointToRift' ≡ 'id'
 -- @
+adjointToRift :: Adjunction f u => u a -> Rift f Identity a
+adjointToRift ua = Rift (Identity . rightAdjunct (<$> ua))
+{-# INLINE adjointToRift #-}
+
+riftToAdjoint :: Adjunction f u => Rift f Identity a -> u a
+riftToAdjoint (Rift m) = leftAdjunct (runIdentity . m) id
+{-# INLINE riftToAdjoint #-}
+
+
+{-
 adjointToRift :: Adjunction f u => f a -> Rift u Identity a
-adjointToRift fa = Rift $ \uar -> Identity $ rightAdjunct (\b -> fmap ($b) uar) fa
+adjointToRift fa = Rift $ \uar -> Identity $ rightAdjunct (\a -> fmap ($a) uar) fa
 {-# INLINE adjointToRift #-}
 
 riftToAdjoint :: Adjunction f u => Rift u Identity a -> f a
 riftToAdjoint (Rift m) = runIdentity $ m $ leftAdjunct (\far a -> fmap ($a) far) id
 {-# INLINE riftToAdjoint #-}
+-}
 
 -- |
 --
