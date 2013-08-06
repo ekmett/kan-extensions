@@ -33,6 +33,8 @@ module Data.Functor.KanLift
   , composeLift, decomposeLift
   , adjointToLift, liftToAdjoint
   , liftToComposedAdjoint, composedAdjointToLift
+  , repToLift, liftToRep
+  , liftToComposedRep, composedRepToLift
   ) where
 
 import Control.Applicative
@@ -41,6 +43,8 @@ import Data.Functor.Adjunction
 import Data.Functor.Composition
 import Data.Functor.Compose
 import Data.Functor.Identity
+import Data.Functor.Representable
+import Data.Key
 import Data.Pointed
 
 -- * Right Kan Lift
@@ -227,8 +231,6 @@ toLift :: Functor z => (forall a. f a -> g (z a)) -> Lift g f b -> z b
 toLift = flip runLift
 {-# INLINE toLift #-}
 
--- toLift decompose :: Compose f => Lift g (compose g f) a -> f a
-
 -- | When the adjunction exists
 --
 -- @
@@ -263,10 +265,19 @@ adjointToLift :: Adjunction f u => f a -> Lift u Identity a
 adjointToLift fa = Lift $ \k -> rightAdjunct (k . Identity) fa
 {-# INLINE adjointToLift #-}
 
+
 -- | @Lift u Identity a@ is isomorphic to the left adjoint to @u@ if one exists.
 liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
 liftToAdjoint = toLift (unit . runIdentity)
 {-# INLINE liftToAdjoint #-}
+
+repToLift :: Representable u => Key u -> a -> Lift u Identity a
+repToLift e a = Lift $ \k -> index (k (Identity a)) e
+{-# INLINE repToLift #-}
+
+liftToRep :: Representable u => Lift u Identity a -> (Key u, a)
+liftToRep (Lift m) = m $ \(Identity a) -> tabulate $ \e -> (e, a)
+{-# INLINE liftToRep #-}
 
 -- | @Lift u h a@ is isomorphic to the post-composition of the left adjoint of @u@ onto @h@ if such a left adjoint exists.
 --
@@ -282,3 +293,11 @@ liftToComposedAdjoint (Lift m) = decompose $ m (leftAdjunct Compose)
 composedAdjointToLift :: Adjunction f u => f (h a) -> Lift u h a
 composedAdjointToLift = rightAdjunct glift
 {-# INLINE composedAdjointToLift #-}
+
+liftToComposedRep :: (Functor h, Representable u) => Lift u h a -> (Key u, h a)
+liftToComposedRep (Lift m) = decompose $ m $ \h -> tabulate $ \e -> Compose (e, h)
+{-# INLINE liftToComposedRep #-}
+
+composedRepToLift :: Representable u => Key u -> h a -> Lift u h a
+composedRepToLift e ha = Lift $ \h2uz -> index (h2uz ha) e
+{-# INLINE composedRepToLift #-}
