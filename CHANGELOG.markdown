@@ -1,3 +1,8 @@
+3.4
+---
+* More combinators for Rift/Lift.
+* Added combinators for working with representable functors rather than just adjoint functors.
+
 3.3
 ---
 * Rift is now `Applicative`. Added `rap`.
