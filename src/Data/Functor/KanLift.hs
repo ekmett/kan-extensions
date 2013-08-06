@@ -271,6 +271,12 @@ liftToAdjoint :: Adjunction f u => Lift u Identity a -> f a
 liftToAdjoint = toLift (unit . runIdentity)
 {-# INLINE liftToAdjoint #-}
 
+-- |
+--
+-- @
+-- 'repToLift' . 'liftToRep' ≡ 'id'
+-- 'liftToRep' . 'repToLift' ≡ 'id'
+-- @
 repToLift :: Representable u => Key u -> a -> Lift u Identity a
 repToLift e a = Lift $ \k -> index (k (Identity a)) e
 {-# INLINE repToLift #-}
@@ -294,6 +300,12 @@ composedAdjointToLift :: Adjunction f u => f (h a) -> Lift u h a
 composedAdjointToLift = rightAdjunct glift
 {-# INLINE composedAdjointToLift #-}
 
+-- |
+--
+-- @
+-- 'liftToComposedRep' . 'composedRepToLift' ≡ 'id'
+-- 'composedRepToLift' . 'liftToComposedRep' ≡ 'id'
+-- @
 liftToComposedRep :: (Functor h, Representable u) => Lift u h a -> (Key u, h a)
 liftToComposedRep (Lift m) = decompose $ m $ \h -> tabulate $ \e -> Compose (e, h)
 {-# INLINE liftToComposedRep #-}
