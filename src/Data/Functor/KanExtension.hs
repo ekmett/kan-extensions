@@ -97,10 +97,12 @@ newtype Ran g h a = Ran { runRan :: forall b. (a -> g b) -> h b }
 
 instance Functor (Ran g h) where
   fmap f m = Ran (\k -> runRan m (k . f))
+  {-# INLINE fmap #-}
 
 -- | The universal property of a right Kan extension.
 toRan :: Functor k => (forall a. k (g a) -> h a) -> k b -> Ran g h b
 toRan s t = Ran (s . flip fmap t)
+{-# INLINE toRan #-}
 
 -- | 'toRan' and 'fromRan' witness a higher kinded adjunction. from @(`'Compose'` g)@ to @'Ran' g@
 --
@@ -110,6 +112,7 @@ toRan s t = Ran (s . flip fmap t)
 -- @
 fromRan :: (forall a. k a -> Ran g h a) -> k (g b) -> h b
 fromRan s = flip runRan id . s
+{-# INLINE fromRan #-}
 
 -- |
 -- @
@@ -118,9 +121,11 @@ fromRan s = flip runRan id . s
 -- @
 composeRan :: Composition compose => Ran f (Ran g h) a -> Ran (compose f g) h a
 composeRan r = Ran (\f -> runRan (runRan r (decompose . f)) id)
+{-# INLINE composeRan #-}
 
 decomposeRan :: (Composition compose, Functor f) => Ran (compose f g) h a -> Ran f (Ran g h) a
 decomposeRan r = Ran (\f -> Ran (\g -> runRan r (compose . fmap g . f)))
+{-# INLINE decomposeRan #-}
 
 -- |
 --
@@ -130,9 +135,11 @@ decomposeRan r = Ran (\f -> Ran (\g -> runRan r (compose . fmap g . f)))
 -- @
 adjointToRan :: Adjunction f g => f a -> Ran g Identity a
 adjointToRan f = Ran (\a -> Identity $ rightAdjunct a f)
+{-# INLINE adjointToRan #-}
 
 ranToAdjoint :: Adjunction f g => Ran g Identity a -> f a
 ranToAdjoint r = runIdentity (runRan r unit)
+{-# INLINE ranToAdjoint #-}
 
 -- |
 --
@@ -142,13 +149,16 @@ ranToAdjoint r = runIdentity (runRan r unit)
 -- @
 ranToComposedAdjoint :: Adjunction f g => Ran g h a -> h (f a)
 ranToComposedAdjoint r = runRan r unit
+{-# INLINE ranToComposedAdjoint #-}
 
 composedAdjointToRan :: (Adjunction f g, Functor h) => h (f a) -> Ran g h a
 composedAdjointToRan f = Ran (\a -> fmap (rightAdjunct a) f)
+{-# INLINE composedAdjointToRan #-}
 
 -- | This is the natural transformation that defines a Right Kan extension.
 gran :: Ran g h (g a) -> h a
 gran (Ran f) = f id
+{-# INLINE gran #-}
 
 repToRan :: Representable u => Key u -> a -> Ran u Identity a
 repToRan e a = Ran $ \k -> Identity $ index (k a) e
@@ -172,19 +182,24 @@ data Lan g h a where
 
 instance Functor (Lan f g) where
   fmap f (Lan g h) = Lan (f . g) h
+  {-# INLINE fmap #-}
 
 instance (Functor g, Apply h) => Apply (Lan g h) where
   Lan kxf x <.> Lan kya y =
     Lan (\k -> kxf (fmap fst k) (kya (fmap snd k))) ((,) <$> x <.> y)
+  {-# INLINE (<.>) #-}
 
 instance (Functor g, Applicative h) => Applicative (Lan g h) where
   pure a = Lan (const a) (pure ())
+  {-# INLINE pure #-}
   Lan kxf x <*> Lan kya y =
     Lan (\k -> kxf (fmap fst k) (kya (fmap snd k))) (liftA2 (,) x y)
+  {-# INLINE (<*>) #-}
 
 -- | The universal property of a left Kan extension.
 toLan :: Functor f => (forall a. h a -> f (g a)) -> Lan g h b -> f b
 toLan s (Lan f v) = fmap f (s v)
+{-# INLINE toLan #-}
 
 -- | 'fromLan' and 'toLan' witness a (higher kinded) adjunction between @'Lan' g@ and @(`Compose` g)@
 --
@@ -194,6 +209,7 @@ toLan s (Lan f v) = fmap f (s v)
 -- @
 fromLan :: (forall a. Lan g h a -> f a) -> h b -> f (g b)
 fromLan s = s . glan
+{-# INLINE fromLan #-}
 
 -- |
 --
@@ -203,9 +219,11 @@ fromLan s = s . glan
 -- @
 adjointToLan :: Adjunction f g => g a -> Lan f Identity a
 adjointToLan = Lan counit . Identity
+{-# INLINE adjointToLan #-}
 
 lanToAdjoint :: Adjunction f g => Lan f Identity a -> g a
 lanToAdjoint (Lan f v) = leftAdjunct f (runIdentity v)
+{-# INLINE lanToAdjoint #-}
 
 -- | 'lanToComposedAdjoint' and 'composedAdjointToLan' witness the natural isomorphism between @Lan f h@ and @Compose h g@ given @f -| g@
 --
@@ -215,9 +233,11 @@ lanToAdjoint (Lan f v) = leftAdjunct f (runIdentity v)
 -- @
 lanToComposedAdjoint :: (Functor h, Adjunction f g) => Lan f h a -> h (g a)
 lanToComposedAdjoint (Lan f v) = fmap (leftAdjunct f) v
+{-# INLINE lanToComposedAdjoint #-}
 
 composedAdjointToLan :: Adjunction f g => h (g a) -> Lan f h a
 composedAdjointToLan = Lan counit
+{-# INLINE composedAdjointToLan #-}
 
 -- | 'composeLan' and 'decomposeLan' witness the natural isomorphism from @Lan f (Lan g h)@ and @Lan (f `o` g) h@
 --
@@ -227,10 +247,13 @@ composedAdjointToLan = Lan counit
 -- @
 composeLan :: (Composition compose, Functor f) => Lan f (Lan g h) a -> Lan (compose f g) h a
 composeLan (Lan f (Lan g h)) = Lan (f . fmap g . decompose) h
+{-# INLINE composeLan #-}
 
 decomposeLan :: Composition compose => Lan (compose f g) h a -> Lan f (Lan g h) a
 decomposeLan (Lan f h) = Lan (f . compose) (Lan id h)
+{-# INLINE decomposeLan #-}
 
 -- | This is the natural transformation that defines a Left Kan extension.
 glan :: h a -> Lan g h (g a)
 glan = Lan id
+{-# INLINE glan #-}
