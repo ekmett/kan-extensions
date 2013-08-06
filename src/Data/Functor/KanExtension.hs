@@ -24,6 +24,7 @@ module Data.Functor.KanExtension
   , adjointToRan, ranToAdjoint
   , composedAdjointToRan, ranToComposedAdjoint
   , repToRan, ranToRep
+  , composedRepToRan, ranToComposedRep
   -- * Left Kan Extensions
   , Lan(..)
   , toLan, fromLan
@@ -157,6 +158,13 @@ ranToRep :: Representable u => Ran u Identity a -> (Key u, a)
 ranToRep (Ran f) = runIdentity $ f (\a -> tabulate $ \e -> (e, a))
 {-# INLINE ranToRep #-}
 
+ranToComposedRep :: Representable u => Ran u h a -> h (Key u, a)
+ranToComposedRep (Ran f) = f (\a -> tabulate $ \e -> (e, a))
+{-# INLINE ranToComposedRep #-}
+
+composedRepToRan :: (Representable u, Functor h) => h (Key u, a) -> Ran u h a
+composedRepToRan hfa = Ran $ \k -> fmap (\(e, a) -> index (k a) e) hfa
+{-# INLINE composedRepToRan #-}
 
 -- | The left Kan extension of a 'Functor' @h@ along a 'Functor' @g@.
 data Lan g h a where
