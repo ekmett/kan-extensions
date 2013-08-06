@@ -23,6 +23,7 @@ module Data.Functor.KanExtension
   , composeRan, decomposeRan
   , adjointToRan, ranToAdjoint
   , composedAdjointToRan, ranToComposedAdjoint
+  , repToRan, ranToRep
   -- * Left Kan Extensions
   , Lan(..)
   , toLan, fromLan
@@ -32,10 +33,12 @@ module Data.Functor.KanExtension
   , composedAdjointToLan, lanToComposedAdjoint
   ) where
 
-import Data.Functor.Identity
 import Data.Functor.Adjunction
-import Data.Functor.Composition
 import Data.Functor.Apply
+import Data.Functor.Composition
+import Data.Functor.Identity
+import Data.Functor.Representable
+import Data.Key
 import Control.Applicative
 
 -- | The right Kan extension of a 'Functor' h along a 'Functor' g.
@@ -145,6 +148,15 @@ composedAdjointToRan f = Ran (\a -> fmap (rightAdjunct a) f)
 -- | This is the natural transformation that defines a Right Kan extension.
 gran :: Ran g h (g a) -> h a
 gran (Ran f) = f id
+
+repToRan :: Representable u => Key u -> a -> Ran u Identity a
+repToRan e a = Ran $ \k -> Identity $ index (k a) e
+{-# INLINE repToRan #-}
+
+ranToRep :: Representable u => Ran u Identity a -> (Key u, a)
+ranToRep (Ran f) = runIdentity $ f (\a -> tabulate $ \e -> (e, a))
+{-# INLINE ranToRep #-}
+
 
 -- | The left Kan extension of a 'Functor' @h@ along a 'Functor' @g@.
 data Lan g h a where
