@@ -35,7 +35,10 @@ module Data.Functor.Yoneda
   ( Yoneda(..)
   , liftYoneda, lowerYoneda
   , maxF, minF, maxM, minM
+  -- * as a right Kan extension
   , yonedaToRan, ranToYoneda
+  -- * as a right Kan lift
+  , yonedaToRift, riftToYoneda
   ) where
 
 import Control.Applicative
@@ -55,6 +58,7 @@ import Data.Functor.Bind
 import Data.Functor.Extend
 import Data.Functor.Identity
 import Data.Functor.Kan.Ran
+import Data.Functor.Kan.Rift
 import Data.Functor.Plus
 import Data.Functor.Representable
 import Data.Key
@@ -98,6 +102,22 @@ ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
 {-# RULES "yonedaToRan/ranToYoneda=id" yonedaToRan . ranToYoneda = id #-}
 {-# RULES "ranToYoneda/yonedaToRan=id" ranToYoneda . yonedaToRan = id #-}
 
+-- | @Yoneda f@ is the right Kan lift of @f@ along the 'Identity' functor.
+--
+-- @
+-- 'yonedaToRift' . 'riftToYoneda' ≡ 'id'
+-- 'riftToYoneda' . 'yonedaToRift' ≡ 'id'
+-- @
+yonedaToRift :: Yoneda f a -> Rift Identity f a
+yonedaToRift m = Rift (runYoneda m . runIdentity)
+{-# INLINE yonedaToRift #-}
+
+riftToYoneda :: Rift Identity f a -> Yoneda f a
+riftToYoneda m = Yoneda (runRift m . Identity)
+{-# INLINE riftToYoneda #-}
+
+{-# RULES "yonedaToRift/riftToYoneda=id" yonedaToRift . riftToYoneda = id #-}
+{-# RULES "riftToYoneda/yonedaToRift=id" riftToYoneda . yonedaToRift = id #-}
 
 instance Functor (Yoneda f) where
   fmap f m = Yoneda (\k -> runYoneda m (k . f))
