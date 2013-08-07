@@ -2,6 +2,9 @@
 ---
 * More combinators for Rift/Lift.
 * Added combinators for working with representable functors rather than just adjoint functors.
+* Moved from `Data.Functor.KanExtension` to `Data.Functor.Kan.Ran` and `Data.Functor.Kan.Lan`
+* Moved from `Data.Functor.KanLift` to `Data.Functor.Kan.Rift` and `Data.Functor.Kan.Lift`
+* Moved from `Data.Functor.Yoneda.Contravariant` to `Data.Functor.Yoneda.Reduction` adopting terminology from Todd Trimble.
 
 3.3
 ---

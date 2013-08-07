@@ -4,7 +4,7 @@
 #endif
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Data.Functor.Yoneda.Contravariant
+-- Module      :  Data.Functor.Yoneda.Reduction
 -- Copyright   :  (C) 2011 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
@@ -12,8 +12,13 @@
 -- Stability   :  provisional
 -- Portability :  GADTs, MPTCs, fundeps
 --
+-- Yoneda Reduction:
+--
+-- <http://ncatlab.org/nlab/show/Yoneda+reduction>
+--
+-- @Yoneda f@ is isomorphic to @Lan f Identity@
 ----------------------------------------------------------------------------
-module Data.Functor.Yoneda.Contravariant
+module Data.Functor.Yoneda.Reduction
   ( Yoneda(..)
   , liftYoneda
   , lowerYoneda
@@ -41,17 +46,20 @@ import Data.Semigroup.Traversable
 import Prelude hiding (sequence, lookup, zipWith)
 import Text.Read hiding (lift)
 
--- | The contravariant Yoneda lemma applied to a covariant functor
+-- | A form suitable for Yoneda reduction
 data Yoneda f a where
   Yoneda :: (b -> a) -> f b -> Yoneda f a
 
-liftYoneda :: f a -> Yoneda f a 
+-- | Yoneda "expansion"
+liftYoneda :: f a -> Yoneda f a
 liftYoneda = Yoneda id
 
+-- | Yoneda reduction
 lowerYoneda :: Functor f => Yoneda f a -> f a
 lowerYoneda (Yoneda f m) = fmap f m
 
-lowerM :: Monad f => Yoneda f a -> f a 
+-- | Yoneda reduction given a 'Monad'.
+lowerM :: Monad f => Yoneda f a -> f a
 lowerM (Yoneda f m) = liftM f m
 
 instance Functor (Yoneda f) where
@@ -168,4 +176,3 @@ instance (Functor f, Ord (f a)) => Ord (Yoneda f a) where
 instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
   unit = liftYoneda . fmap liftYoneda . unit
   counit = counit . fmap lowerYoneda . lowerYoneda
-

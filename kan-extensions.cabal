@@ -1,6 +1,6 @@
 name:          kan-extensions
 category:      Data Structures, Monads, Comonads, Functors
-version:       3.4
+version:       3.5
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -62,10 +62,12 @@ library
     Control.Comonad.Density
     Control.Monad.Co
     Control.Monad.Codensity
-    Data.Functor.KanExtension
-    Data.Functor.KanLift
+    Data.Functor.Kan.Lan
+    Data.Functor.Kan.Lift
+    Data.Functor.Kan.Ran
+    Data.Functor.Kan.Rift
     Data.Functor.Yoneda
-    Data.Functor.Yoneda.Contravariant
+    Data.Functor.Yoneda.Reduction
 
   ghc-options: -Wall
 

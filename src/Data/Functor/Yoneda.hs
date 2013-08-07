@@ -5,13 +5,20 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Yoneda
--- Copyright   :  (C) 2011 Edward Kmett
+-- Copyright   :  (C) 2011-2013 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
 -- Portability :  MPTCs, fundeps
 --
+-- The co-Yoneda lemma states that
+--
+-- @f a@ is isomorphic to @(forall r. (a -> r) -> f a)@
+--
+-- This is described in a rather intuitive fashion by Dan Piponi in
+--
+-- <http://blog.sigfpe.com/2006/11/yoneda-lemma.html>
 ----------------------------------------------------------------------------
 
 module Data.Functor.Yoneda
