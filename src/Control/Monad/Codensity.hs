@@ -116,7 +116,7 @@ instance MonadPlus v => MonadPlus (Codensity v) where
   {-# INLINE mplus #-}
 
 -- |
--- This serves as the *left*-inverse (retraction) of 'lift'. 
+-- This serves as the *left*-inverse (retraction) of 'lift'.
 --
 --
 -- @
