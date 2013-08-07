@@ -25,13 +25,13 @@
 --
 -- 'Co' can be viewed as a right Kan lift along a 'Comonad'.
 --
--- In general you can "sandwich" a monad in between two halves of an adjunction.
+-- In general you can \"sandwich\" a monad in between two halves of an adjunction.
 -- That is to say, if you have an adjunction @F -| G : C -> D @ then not only does @GF@
 -- form a monad, but @GMF@ forms a monad for @M@ a monad in @D@. Therefore if we
 -- have an adjunction @F -| G : Hask -> Hask^op@ then we can lift a 'Comonad' in @Hask@
 -- which is a 'Monad' in @Hask^op@ to a 'Monad' in 'Hask'.
 --
--- For any @r@, the 'Contravariant' functor / presheaf @(-> r)@ :: Hask^op -> Hask is adjoint to the "same"
+-- For any @r@, the 'Contravariant' functor / presheaf @(-> r)@ :: Hask^op -> Hask is adjoint to the \"same\"
 -- 'Contravariant' functor @(-> r) :: Hask -> Hask^op@. So we can sandwhich a
 -- Monad in Hask^op in the middle to obtain @w (a -> r-) -> r+@, and then take a coend over
 -- @r@ to obtain @forall r. w (a -> r) -> r@. This gives rise to 'Co'. If we observe that
