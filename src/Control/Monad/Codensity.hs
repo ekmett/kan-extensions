@@ -115,10 +115,31 @@ instance MonadPlus v => MonadPlus (Codensity v) where
   Codensity m `mplus` Codensity n = Codensity (\k -> m k `mplus` n k)
   {-# INLINE mplus #-}
 
+-- |
+-- This serves as the *left*-inverse (retraction) of 'lift'. 
+--
+--
+-- @
+-- 'lowerCodensity . lift' ≡ 'id'
+-- @
+--
+-- In general this is not a full 2-sided inverse, merely a retraction, as
+-- @'Codensity' m@ is often considerably "larger" than @m@.
+--
+-- e.g. @'Codensity' ((->) s)) a ~ forall r. (a -> s -> r) -> s -> r@
+-- could support a full complement of @'MonadState' s@ actions, while @(->) s@
+-- is limited to @'MonadReader' s@ actions.
 lowerCodensity :: Monad m => Codensity m a -> m a
 lowerCodensity a = runCodensity a return
 {-# INLINE lowerCodensity #-}
 
+-- | The 'Codensity' monad of a right adjoint is isomorphic to the
+-- monad obtained from the 'Adjunction'.
+--
+-- @
+-- 'codensityToAdjunction' . 'adjunctionToCodensity' ≡ 'id'
+-- 'adjunctionToCodensity' . 'codensityToAdjunction' ≡ 'id'
+-- @
 codensityToAdjunction :: Adjunction f g => Codensity g a -> g (f a)
 codensityToAdjunction r = runCodensity r unit
 {-# INLINE codensityToAdjunction #-}
