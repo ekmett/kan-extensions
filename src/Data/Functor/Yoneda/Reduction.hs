@@ -4,7 +4,6 @@
 #endif
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Data.Functor.Yoneda.Reduction
 -- Copyright   :  (C) 2011 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --

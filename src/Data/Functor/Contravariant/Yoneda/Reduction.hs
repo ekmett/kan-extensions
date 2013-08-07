@@ -1,4 +1,18 @@
 {-# LANGUAGE GADTs #-}
+-----------------------------------------------------------------------------
+-- |
+-- Copyright   :  (C) 2013 Edward Kmett
+-- License     :  BSD-style (see the file LICENSE)
+--
+-- Maintainer  :  Edward Kmett <ekmett@gmail.com>
+-- Stability   :  provisional
+-- Portability :  GADTs
+--
+-- Yoneda Reduction of presheafs
+--
+-- <http://ncatlab.org/nlab/show/Yoneda+reduction>
+--
+----------------------------------------------------------------------------
 module Data.Functor.Contravariant.Yoneda.Reduction
   ( Yoneda(..)
   , liftYoneda
@@ -7,7 +21,7 @@ module Data.Functor.Contravariant.Yoneda.Reduction
 
 import Data.Functor.Contravariant
 
--- | A contravariant functor / presheaf suitable for Yoneda reduction.
+-- | A 'Contravariant' functor (aka presheaf) suitable for Yoneda reduction.
 data Yoneda f a where
   Yoneda :: (a -> b) -> f b -> Yoneda f a
 
