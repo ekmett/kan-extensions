@@ -26,9 +26,9 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Yoneda.Reduction
   ( Yoneda(..)
-  , liftYoneda
-  , lowerYoneda
-  , lowerM
+  , liftYoneda, lowerYoneda, lowerM
+  -- * as a Left Kan extension
+  , yonedaToLan, lanToYoneda
   ) where
 
 import Control.Applicative
@@ -39,10 +39,12 @@ import Control.Comonad
 import Control.Comonad.Trans.Class
 import Data.Distributive
 import Data.Function (on)
+import Data.Functor.Adjunction
 import Data.Functor.Bind
 import Data.Functor.Extend
+import Data.Functor.Identity
+import Data.Functor.Kan.Lan
 import Data.Functor.Plus
-import Data.Functor.Adjunction
 import Data.Functor.Representable
 import Data.Key
 import Data.Foldable
@@ -55,6 +57,18 @@ import Text.Read hiding (lift)
 -- | A form suitable for Yoneda reduction
 data Yoneda f a where
   Yoneda :: (b -> a) -> f b -> Yoneda f a
+
+-- | @Yoneda f@ is the left Kan extension of @f@ along the 'Identity' functor.
+--
+-- @
+-- 'yonedaToLan' . 'lanToYoneda' ≡ 'id'
+-- 'lanToYoneda' . 'yonedaToLan' ≡ 'id'
+-- @
+yonedaToLan :: Yoneda f a -> Lan Identity f a
+yonedaToLan (Yoneda ba fb) = Lan (ba . runIdentity) fb
+
+lanToYoneda :: Lan Identity f a -> Yoneda f a
+lanToYoneda (Lan iba fb) = Yoneda (iba . Identity) fb
 
 instance Functor (Yoneda f) where
   fmap f (Yoneda g v) = Yoneda (f . g) v
