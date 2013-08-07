@@ -29,6 +29,8 @@ module Data.Functor.Yoneda.Reduction
   , liftYoneda, lowerYoneda, lowerM
   -- * as a Left Kan extension
   , yonedaToLan, lanToYoneda
+  -- * as a Left Kan lift
+  , yonedaToLift, liftToYoneda
   ) where
 
 import Control.Applicative
@@ -44,6 +46,7 @@ import Data.Functor.Bind
 import Data.Functor.Extend
 import Data.Functor.Identity
 import Data.Functor.Kan.Lan
+import Data.Functor.Kan.Lift
 import Data.Functor.Plus
 import Data.Functor.Representable
 import Data.Key
@@ -69,6 +72,24 @@ yonedaToLan (Yoneda ba fb) = Lan (ba . runIdentity) fb
 
 lanToYoneda :: Lan Identity f a -> Yoneda f a
 lanToYoneda (Lan iba fb) = Yoneda (iba . Identity) fb
+
+{-# RULES "yonedaToLan/lanToYoneda=id" yonedaToLan . lanToYoneda = id #-}
+{-# RULES "lanToYoneda/yonedaToLan=id" lanToYoneda . yonedaToLan = id #-}
+
+-- | @Yoneda f@ is the left Kan lift of @f@ along the 'Identity' functor.
+--
+-- @
+-- 'yonedaToLift' . 'liftToYoneda' ≡ 'id'
+-- 'liftToYoneda' . 'yonedaToLift' ≡ 'id'
+-- @
+yonedaToLift :: Yoneda f a -> Lift Identity f a
+yonedaToLift (Yoneda ba fb) = Lift $ \ f2iz -> ba <$> runIdentity (f2iz fb)
+
+liftToYoneda :: Functor f => Lift Identity f a -> Yoneda f a
+liftToYoneda (Lift m) = Yoneda id (m Identity)
+
+{-# RULES "yonedaToLift/liftToYoneda=id" yonedaToLift . liftToYoneda = id #-}
+{-# RULES "liftToYoneda/yonedaToLift=id" liftToYoneda . yonedaToLift = id #-}
 
 instance Functor (Yoneda f) where
   fmap f (Yoneda g v) = Yoneda (f . g) v
