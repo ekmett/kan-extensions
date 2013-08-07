@@ -33,9 +33,9 @@
 
 module Data.Functor.Yoneda
   ( Yoneda(..)
-  , liftYoneda
-  , lowerYoneda
+  , liftYoneda, lowerYoneda
   , maxF, minF, maxM, minM
+  , yonedaToRan, ranToYoneda
   ) where
 
 import Control.Applicative
@@ -50,10 +50,12 @@ import Control.Concurrent.Speculation.Class
 import Data.Distributive
 import Data.Foldable
 import Data.Function (on)
-import Data.Functor.Plus
+import Data.Functor.Adjunction
 import Data.Functor.Bind
 import Data.Functor.Extend
-import Data.Functor.Adjunction
+import Data.Functor.Identity
+import Data.Functor.Kan.Ran
+import Data.Functor.Plus
 import Data.Functor.Representable
 import Data.Key
 import Data.Semigroup.Foldable
@@ -71,6 +73,12 @@ instance Monad m => MonadSpec (Yoneda m) where
 #endif
 
 newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
+
+yonedaToRan :: Yoneda f a -> Ran Identity f a
+yonedaToRan (Yoneda m) = Ran (m . fmap runIdentity)
+
+ranToYoneda :: Ran Identity f a -> Yoneda f a
+ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
 
 liftYoneda :: Functor f => f a -> Yoneda f a
 liftYoneda a = Yoneda (\f -> fmap f a)
