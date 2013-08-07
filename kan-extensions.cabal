@@ -62,6 +62,7 @@ library
     Control.Comonad.Density
     Control.Monad.Co
     Control.Monad.Codensity
+    Data.Functor.Contravariant.Yoneda
     Data.Functor.Contravariant.Yoneda.Reduction
     Data.Functor.Kan.Lan
     Data.Functor.Kan.Lift
