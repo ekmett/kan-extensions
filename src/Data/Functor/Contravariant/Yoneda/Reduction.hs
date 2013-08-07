@@ -1,5 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2013 Edward Kmett
@@ -7,7 +9,7 @@
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
--- Portability :  GADTs
+-- Portability :  GADTs, TFs, MPTCs
 --
 -- Yoneda Reduction of presheafs
 --
@@ -22,6 +24,7 @@ module Data.Functor.Contravariant.Yoneda.Reduction
 
 import Control.Arrow
 import Data.Functor.Contravariant
+import Data.Functor.Contravariant.Adjunction
 import Data.Functor.Contravariant.Representable
 
 type instance Value (Yoneda f) = Value f
@@ -45,6 +48,12 @@ instance Coindexed f => Coindexed (Yoneda f) where
 instance Representable f => Representable (Yoneda f) where
   contrarep = liftYoneda . contrarep
   {-# INLINE contrarep #-}
+
+instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
+  leftAdjunct f = liftYoneda . leftAdjunct (lowerYoneda . f)
+  {-# INLINE leftAdjunct #-}
+  rightAdjunct f = liftYoneda . rightAdjunct (lowerYoneda . f)
+  {-# INLINE rightAdjunct #-}
 
 -- | Yoneda "expansion" of a presheaf
 liftYoneda :: f a -> Yoneda f a
