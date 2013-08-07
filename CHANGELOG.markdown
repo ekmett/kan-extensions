@@ -1,3 +1,7 @@
+3.6.2
+-----
+* Added `Data.Functor.Contravariant.Yoneda` to complete the set of Yoneda embeddings/reductions.
+
 3.6.1
 -----
 * Added several missing isomorphisms
