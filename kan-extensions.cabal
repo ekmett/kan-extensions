@@ -9,7 +9,7 @@ maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://github.com/ekmett/kan-extensions/
 bug-reports:   http://github.com/ekmett/kan-extensions/issues
-copyright:     Copyright (C) 2011-2013 Edward A. Kmett
+copyright:     Copyright (C) 2008-2013 Edward A. Kmett
 synopsis:      Kan extensions, Kan lifts, various forms of the Yoneda lemma, and (co)density (co)monads
 description:   Kan extensions, Kan lifts, various forms of the Yoneda lemma, and (co)density (co)monads
 build-type:    Simple
