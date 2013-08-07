@@ -25,6 +25,7 @@ module Control.Comonad.Density
   ( Density(..)
   , liftDensity
   , densityToAdjunction, adjunctionToDensity
+  , densityToLan, lanToDensity
   ) where
 
 import Control.Applicative
@@ -33,6 +34,7 @@ import Control.Comonad.Trans.Class
 import Data.Functor.Apply
 import Data.Functor.Adjunction
 import Data.Functor.Extend
+import Data.Functor.Kan.Lan
 
 data Density k a where
   Density :: (k b -> a) -> k b -> Density k a
@@ -72,6 +74,14 @@ liftDensity :: Comonad w => w a -> Density w a
 liftDensity = Density extract
 {-# INLINE liftDensity #-}
 
+-- | The Density 'Comonad' of a left adjoint is isomorphic to the 'Comonad' formed by that 'Adjunction'.
+--
+-- This isomorphism is witnessed by 'densityToAdjunction' and 'adjunctionToDensity'.
+--
+-- @
+-- 'densityToAdjunction' . 'adjunctionToDensity' ≡ 'id'
+-- 'adjunctionToDensity' . 'densityToAdjunction' ≡ 'id'
+-- @
 densityToAdjunction :: Adjunction f g => Density f a -> f (g a)
 densityToAdjunction (Density f v) = fmap (leftAdjunct f) v
 {-# INLINE densityToAdjunction #-}
@@ -79,3 +89,19 @@ densityToAdjunction (Density f v) = fmap (leftAdjunct f) v
 adjunctionToDensity :: Adjunction f g => f (g a) -> Density f a
 adjunctionToDensity = Density counit
 {-# INLINE adjunctionToDensity #-}
+
+-- | The 'Density' 'Comonad' of a 'Functor' @f@ is obtained by taking the left Kan extension
+-- ('Lan') of @f@ along itself. This isomorphism is witnessed by 'lanToDensity' and 'densityToLan'
+--
+-- @
+-- 'lanToDensity' . 'densityToLan' ≡ 'id'
+-- 'densityToLan' . 'lanToDensity' ≡ 'id'
+-- @
+lanToDensity :: Lan f f a -> Density f a
+lanToDensity (Lan f v) = Density f v
+{-# INLINE lanToDensity #-}
+
+densityToLan :: Density f a -> Lan f f a
+densityToLan (Density f v) = Lan f v
+{-# INLINE densityToLan #-}
+
