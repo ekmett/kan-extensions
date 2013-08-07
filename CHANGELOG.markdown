@@ -1,3 +1,7 @@
+3.5.1
+-----
+* Fixed a bug in the signature for `composedRepToCodensity`.
+
 3.5
 ---
 * More combinators for `Rift`/`Lift`.
