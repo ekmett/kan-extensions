@@ -173,7 +173,6 @@ decomposeRift (Rift f) = Rift $ \far -> Rift (f . compose . fmap (\rs -> fmap (r
 {-# INLINE decomposeRift #-}
 
 
--- |
 -- | @Rift f h a@ is isomorphic to the post-composition of the right adjoint of @f@ onto @h@ if such a right adjoint exists.
 --
 -- @
