@@ -74,12 +74,6 @@ instance Monad m => MonadSpec (Yoneda m) where
 
 newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
 
-yonedaToRan :: Yoneda f a -> Ran Identity f a
-yonedaToRan (Yoneda m) = Ran (m . fmap runIdentity)
-
-ranToYoneda :: Ran Identity f a -> Yoneda f a
-ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
-
 liftYoneda :: Functor f => f a -> Yoneda f a
 liftYoneda a = Yoneda (\f -> fmap f a)
 
@@ -88,6 +82,22 @@ lowerYoneda (Yoneda f) = f id
 
 {-# RULES "lower/lift=id" liftYoneda . lowerYoneda = id #-}
 {-# RULES "lift/lower=id" lowerYoneda . liftYoneda = id #-}
+
+-- | @Yoneda f@ is the right Kan extension of @f@ along the 'Identity' functor.
+--
+-- @
+-- 'yonedaToRan' . 'ranToYoneda' ≡ 'id'
+-- 'ranToYoneda' . 'yonedaToRan' ≡ 'id'
+-- @
+yonedaToRan :: Yoneda f a -> Ran Identity f a
+yonedaToRan (Yoneda m) = Ran (m . fmap runIdentity)
+
+ranToYoneda :: Ran Identity f a -> Yoneda f a
+ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
+
+{-# RULES "yonedaToRan/ranToYoneda=id" yonedaToRan . ranToYoneda = id #-}
+{-# RULES "ranToYoneda/yonedaToRan=id" ranToYoneda . yonedaToRan = id #-}
+
 
 instance Functor (Yoneda f) where
   fmap f m = Yoneda (\k -> runYoneda m (k . f))
