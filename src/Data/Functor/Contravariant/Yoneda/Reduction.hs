@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeFamilies #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2013 Edward Kmett
@@ -19,15 +20,31 @@ module Data.Functor.Contravariant.Yoneda.Reduction
   , lowerYoneda
   ) where
 
+import Control.Arrow
 import Data.Functor.Contravariant
+import Data.Functor.Contravariant.Representable
+
+type instance Value (Yoneda f) = Value f
 
 -- | A 'Contravariant' functor (aka presheaf) suitable for Yoneda reduction.
 data Yoneda f a where
   Yoneda :: (a -> b) -> f b -> Yoneda f a
 
-instance Contravariant f => Contravariant (Yoneda f) where
+instance Contravariant (Yoneda f) where
   contramap f (Yoneda g m) = Yoneda (g.f) m
   {-# INLINE contramap #-}
+
+instance Valued f => Valued (Yoneda f) where
+  contramapWithValue beav (Yoneda ac fc) = Yoneda (left ac . beav) (contramapWithValue id fc)
+  {-# INLINE contramapWithValue #-}
+
+instance Coindexed f => Coindexed (Yoneda f) where
+  coindex (Yoneda ab fb) a = coindex fb (ab a)
+  {-# INLINE coindex #-}
+
+instance Representable f => Representable (Yoneda f) where
+  contrarep = liftYoneda . contrarep
+  {-# INLINE contrarep #-}
 
 -- | Yoneda "expansion" of a presheaf
 liftYoneda :: f a -> Yoneda f a
