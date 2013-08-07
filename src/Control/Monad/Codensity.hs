@@ -182,7 +182,7 @@ codensityToComposedRep (Codensity f) = f (\a -> tabulate $ \e -> (e, a))
 -- @
 -- 'composedRepToCodensity' = 'ranToCodensity' . 'composedRepToRan'
 -- @
-composedRepToCodensity :: (Representable u, Functor h) => u (Key u, a) -> Codensity u a
+composedRepToCodensity :: Representable u => u (Key u, a) -> Codensity u a
 composedRepToCodensity hfa = Codensity $ \k -> fmap (\(e, a) -> index (k a) e) hfa
 {-# INLINE composedRepToCodensity #-}
 
