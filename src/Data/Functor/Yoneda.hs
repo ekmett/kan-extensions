@@ -1,6 +1,16 @@
-{-# LANGUAGE TypeFamilies, CPP, Rank2Types, FlexibleContexts, MultiParamTypeClasses, UndecidableInstances, FlexibleInstances #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
+#endif
+
+#ifndef MIN_VERSION_speculation
+#define MIN_VERSION_speculation(x,y,z) 1
 #endif
 -----------------------------------------------------------------------------
 -- |
@@ -35,6 +45,8 @@ import Control.Monad.Free.Class
 import Control.Monad.Trans.Class
 import Control.Comonad
 import Control.Comonad.Trans.Class
+import Control.Concurrent.Speculation
+import Control.Concurrent.Speculation.Class
 import Data.Distributive
 import Data.Foldable
 import Data.Function (on)
@@ -49,6 +61,14 @@ import Data.Semigroup.Traversable
 import Data.Traversable
 import Text.Read hiding (lift)
 import Prelude hiding (sequence, lookup, zipWith)
+
+instance Monad m => MonadSpec (Yoneda m) where
+  specByM f g a = Yoneda $ \k -> specBy f g (return . k) a
+  {-# INLINE specByM #-}
+#if !(MIN_VERSION_speculation(1,5,0))
+  specByM' f g a = Yoneda $ \k -> specBy' f g (return . k) a
+  {-# INLINE specByM' #-}
+#endif
 
 newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
 

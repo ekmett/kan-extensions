@@ -1,3 +1,7 @@
+3.6
+---
+* `instance Monad m => MonadSpec (Yoneda m)`
+
 3.5.1
 -----
 * Fixed a bug in the signature for `composedRepToCodensity`.
