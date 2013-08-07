@@ -1,3 +1,7 @@
+3.6.1
+-----
+* Added several missing isomorphisms
+
 3.6
 ---
 * `instance Monad m => MonadSpec (Yoneda m)`
