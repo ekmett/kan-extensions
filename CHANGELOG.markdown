@@ -1,10 +1,12 @@
-3.4
+3.5
 ---
-* More combinators for Rift/Lift.
+* More combinators for `Rift`/`Lift`.
 * Added combinators for working with representable functors rather than just adjoint functors.
-* Moved from `Data.Functor.KanExtension` to `Data.Functor.Kan.Ran` and `Data.Functor.Kan.Lan`
-* Moved from `Data.Functor.KanLift` to `Data.Functor.Kan.Rift` and `Data.Functor.Kan.Lift`
+* Split `Data.Functor.KanExtension` into `Data.Functor.Kan.Ran` and `Data.Functor.Kan.Lan`
+* Split `Data.Functor.KanLift` into `Data.Functor.Kan.Rift` and `Data.Functor.Kan.Lift`
 * Moved from `Data.Functor.Yoneda.Contravariant` to `Data.Functor.Yoneda.Reduction` adopting terminology from Todd Trimble.
+* Added various missing isomorphisms.
+* Greatly improved the Haddocks for this package stating laws and derivations where we can (especially for 'Rift' and 'Ran').
 
 3.3
 ---
