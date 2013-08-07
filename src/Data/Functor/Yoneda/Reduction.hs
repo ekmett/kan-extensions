@@ -1,7 +1,14 @@
-{-# LANGUAGE CPP, GADTs, FlexibleContexts, MultiParamTypeClasses, UndecidableInstances, TypeFamilies #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies #-}
+
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
+
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2013 Edward Kmett
@@ -15,7 +22,7 @@
 --
 -- <http://ncatlab.org/nlab/show/Yoneda+reduction>
 --
--- @Yoneda f@ is isomorphic to @Lan f Identity@
+-- @'Yoneda' f@ is isomorphic to @'Lan' f 'Identity'@
 ----------------------------------------------------------------------------
 module Data.Functor.Yoneda.Reduction
   ( Yoneda(..)
@@ -48,21 +55,6 @@ import Text.Read hiding (lift)
 -- | A form suitable for Yoneda reduction
 data Yoneda f a where
   Yoneda :: (b -> a) -> f b -> Yoneda f a
-
--- | Yoneda "expansion"
-liftYoneda :: f a -> Yoneda f a
-liftYoneda = Yoneda id
-{-# INLINE liftYoneda #-}
-
--- | Yoneda reduction
-lowerYoneda :: Functor f => Yoneda f a -> f a
-lowerYoneda (Yoneda f m) = fmap f m
-{-# INLINE lowerYoneda #-}
-
--- | Yoneda reduction given a 'Monad'.
-lowerM :: Monad f => Yoneda f a -> f a
-lowerM (Yoneda f m) = liftM f m
-{-# INLINE lowerM #-}
 
 instance Functor (Yoneda f) where
   fmap f (Yoneda g v) = Yoneda (f . g) v
@@ -218,3 +210,36 @@ instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
   {-# INLINE unit #-}
   counit = counit . fmap lowerYoneda . lowerYoneda
   {-# INLINE counit #-}
+
+-- | Yoneda "expansion"
+--
+-- @
+-- 'liftYoneda' . 'lowerYoneda' ≡ 'id'
+-- 'lowerYoneda' . 'liftYoneda' ≡ 'id'
+-- @
+--
+--
+-- @
+-- 'lift' = 'liftYoneda'
+-- @
+liftYoneda :: f a -> Yoneda f a
+liftYoneda = Yoneda id
+{-# INLINE liftYoneda #-}
+
+-- | Yoneda reduction
+--
+-- @
+-- 'lower' = 'lowerM' = 'lowerYoneda'
+-- @
+lowerYoneda :: Functor f => Yoneda f a -> f a
+lowerYoneda (Yoneda f m) = fmap f m
+{-# INLINE lowerYoneda #-}
+
+-- | Yoneda reduction given a 'Monad'.
+--
+-- @
+-- 'lower' = 'lowerM' = 'lowerYoneda'
+-- @
+lowerM :: Monad f => Yoneda f a -> f a
+lowerM (Yoneda f m) = liftM f m
+{-# INLINE lowerM #-}
