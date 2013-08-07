@@ -23,12 +23,25 @@
 --
 -- <http://comonad.com/reader/2011/monads-from-comonads/>
 --
--- 'Co' and 'CoT' just special cases of the general notion of a
--- Right Kan lift.
+-- 'Co' can be viewed as a right Kan lift along a 'Comonad'.
 --
--- TODO: We could consider unifying the definition of 'CoT' and 'Rift', but
--- 'Rift' f f also forms a Codensity-like 'Monad', so there is a reasonable
--- case for keeping them separate.
+-- In general you can "sandwich" a monad in between two halves of an adjunction.
+-- That is to say, if you have an adjunction @F -| G : C -> D @ then not only does @GF@
+-- form a monad, but @GMF@ forms a monad for @M@ a monad in @D@. Therefore if we
+-- have an adjunction @F -| G : Hask -> Hask^op@ then we can lift a 'Comonad' in @Hask@
+-- which is a 'Monad' in @Hask^op@ to a 'Monad' in 'Hask'.
+--
+-- For any @r@, the 'Contravariant' functor / presheaf @(-> r)@ :: Hask^op -> Hask is adjoint to the "same"
+-- 'Contravariant' functor @(-> r) :: Hask -> Hask^op@. So we can sandwhich a
+-- Monad in Hask^op in the middle to obtain @w (a -> r-) -> r+@, and then take a coend over
+-- @r@ to obtain @forall r. w (a -> r) -> r@. This gives rise to 'Co'. If we observe that
+-- we didn't care what the choices we made for @r@ were to finish this construction, we can
+-- upgrade to @forall r. w (a -> m r) -> m r@ in a manner similar to how @ContT@ is constructed
+-- yielding 'CoT'.
+--
+-- We could consider unifying the definition of 'Co' and 'Rift', but
+-- there are many other arguments for which 'Rift' can form a 'Monad', and this
+-- wouldn't give rise to 'CoT'.
 ----------------------------------------------------------------------------
 module Control.Monad.Co
   (
