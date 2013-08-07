@@ -60,6 +60,11 @@ instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
   {-# INLINE rightAdjunct #-}
 
 -- | Yoneda "expansion" of a presheaf
+--
+-- @
+-- 'liftYoneda' . 'lowerYoneda' ≡ 'id'
+-- 'lowerYoneda' . 'liftYoneda' ≡ 'id'
+-- @
 liftYoneda :: f a -> Yoneda f a
 liftYoneda = Yoneda id
 {-# INLINE liftYoneda #-}
