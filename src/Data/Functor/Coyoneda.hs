@@ -54,7 +54,8 @@ import Data.Semigroup.Traversable
 import Prelude hiding (sequence, lookup, zipWith)
 import Text.Read hiding (lift)
 
--- | A covariant form suitable for Yoneda reduction
+-- | A covariant 'Functor' suitable for Yoneda reduction
+--
 data Coyoneda f a where
   Coyoneda :: (b -> a) -> f b -> Coyoneda f a
 
@@ -265,6 +266,8 @@ liftCoyoneda = Coyoneda id
 {-# INLINE liftCoyoneda #-}
 
 -- | Yoneda reduction lets us walk under the existential and apply 'fmap'.
+--
+-- Mnemonically, \"Yoneda reduction\" sounds like and works a bit like β-reduction.
 --
 -- <http://ncatlab.org/nlab/show/Yoneda+reduction>
 --
