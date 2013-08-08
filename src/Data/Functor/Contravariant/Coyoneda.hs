@@ -34,6 +34,8 @@ import Data.Functor.Contravariant.Representable
 type instance Value (Coyoneda f) = Value f
 
 -- | A 'Contravariant' functor (aka presheaf) suitable for Yoneda reduction.
+--
+-- <http://ncatlab.org/nlab/show/Yoneda+reduction>
 data Coyoneda f a where
   Coyoneda :: (a -> b) -> f b -> Coyoneda f a
 
