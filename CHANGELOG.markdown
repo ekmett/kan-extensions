@@ -1,6 +1,7 @@
 3.7
 ---
 * Moved all the `Yoneda` variants around again.
+* Improved haddocks
 
 3.6.2
 -----
