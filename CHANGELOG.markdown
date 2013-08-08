@@ -1,3 +1,7 @@
+3.7
+---
+* Moved all the `Yoneda` variants around again.
+
 3.6.2
 -----
 * Added `Data.Functor.Contravariant.Yoneda` to complete the set of Yoneda embeddings/reductions.

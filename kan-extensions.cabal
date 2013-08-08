@@ -63,13 +63,13 @@ library
     Control.Monad.Co
     Control.Monad.Codensity
     Data.Functor.Contravariant.Yoneda
-    Data.Functor.Contravariant.Yoneda.Reduction
+    Data.Functor.Contravariant.Coyoneda
     Data.Functor.Kan.Lan
     Data.Functor.Kan.Lift
     Data.Functor.Kan.Ran
     Data.Functor.Kan.Rift
     Data.Functor.Yoneda
-    Data.Functor.Yoneda.Reduction
+    Data.Functor.Coyoneda
 
   ghc-options: -Wall
 

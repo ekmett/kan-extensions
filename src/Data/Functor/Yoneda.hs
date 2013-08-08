@@ -22,9 +22,8 @@
 -- Stability   :  provisional
 -- Portability :  MPTCs, fundeps
 --
--- The co-Yoneda lemma states that
---
--- @f a@ is isomorphic to @(forall r. (a -> r) -> f a)@
+-- The covariant form of the Yoneda lemma states that @f@ is naturally
+-- isomorphic to @Yoneda f@.
 --
 -- This is described in a rather intuitive fashion by Dan Piponi in
 --
@@ -76,8 +75,28 @@ instance Monad m => MonadSpec (Yoneda m) where
   {-# INLINE specByM' #-}
 #endif
 
+-- | @Yoneda f a@ can be viewed as the partial application of 'fmap' to its second argument.
 newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
 
+-- | The natural isomorphism between @f@ and @'Yoneda' f@ given by the Yoneda lemma
+-- is witnessed by 'liftYoneda' and 'lowerYoneda'
+--
+-- @
+-- 'liftYoneda' . 'lowerYoneda' ≡ 'id'
+-- 'lowerYoneda' . 'liftYoneda' ≡ 'id'
+-- @
+--
+-- @
+-- lowerYoneda (liftYoneda fa) =         -- definition
+-- lowerYoneda (Yoneda (\f -> fmap f a)) -- definition
+-- (\f -> fmap f fa) id                  -- beta reduction
+-- fmap id fa                            -- functor law
+-- fa
+-- @
+--
+-- @
+-- 'lift' = 'liftYoneda'
+-- @
 liftYoneda :: Functor f => f a -> Yoneda f a
 liftYoneda a = Yoneda (\f -> fmap f a)
 
@@ -87,7 +106,7 @@ lowerYoneda (Yoneda f) = f id
 {-# RULES "lower/lift=id" liftYoneda . lowerYoneda = id #-}
 {-# RULES "lift/lower=id" lowerYoneda . liftYoneda = id #-}
 
--- | @Yoneda f@ is the right Kan extension of @f@ along the 'Identity' functor.
+-- | @Yoneda f@ can be viewed as the right Kan extension of @f@ along the 'Identity' functor.
 --
 -- @
 -- 'yonedaToRan' . 'ranToYoneda' ≡ 'id'
@@ -102,7 +121,7 @@ ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
 {-# RULES "yonedaToRan/ranToYoneda=id" yonedaToRan . ranToYoneda = id #-}
 {-# RULES "ranToYoneda/yonedaToRan=id" ranToYoneda . yonedaToRan = id #-}
 
--- | @Yoneda f@ is the right Kan lift of @f@ along the 'Identity' functor.
+-- | @Yoneda f@ can be viewed as the right Kan lift of @f@ along the 'Identity' functor.
 --
 -- @
 -- 'yonedaToRift' . 'riftToYoneda' ≡ 'id'
