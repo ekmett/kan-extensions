@@ -132,7 +132,7 @@ instance MonadPlus v => MonadPlus (Codensity v) where
 --
 --
 -- @
--- 'lowerCodensity . lift' ≡ 'id'
+-- 'lowerCodensity' . 'lift' ≡ 'id'
 -- @
 --
 -- In general this is not a full 2-sided inverse, merely a retraction, as

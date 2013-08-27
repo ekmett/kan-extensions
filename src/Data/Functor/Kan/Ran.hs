@@ -68,17 +68,19 @@ import Data.Key
 -- @
 -- ranIso1 :: Ran g f x -> Ran' g f x
 -- ranIso1 (Ran e) = Ran' e id
+-- @
 --
+-- @
 -- ranIso2 :: Ran' g f x -> Ran g f x
--- ranIso2 (Ran' h z) = Ran $ \k -> h (k <$> z)
+-- ranIso2 (Ran' h z) = Ran $ \\k -> h (k \<$\> z)
 -- @
 --
 -- @
 -- ranIso2 (ranIso1 (Ran e)) ≡ -- by definition
 -- ranIso2 (Ran' e id) ≡       -- by definition
--- Ran $ \k -> e (k <$> id)    -- by definition
--- Ran $ \k -> e (k . id)      -- f . id = f
--- Ran $ \k -> e k             -- eta reduction
+-- Ran $ \\k -> e (k \<$\> id)    -- by definition
+-- Ran $ \\k -> e (k . id)      -- f . id = f
+-- Ran $ \\k -> e k             -- eta reduction
 -- Ran e
 -- @
 --
