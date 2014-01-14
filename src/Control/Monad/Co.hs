@@ -89,7 +89,6 @@ runCo m = runIdentity . runCoT m . fmap (fmap Identity)
 
 -- |
 -- @
--- 'CoT' w m a ~ 'Data.Functor.KanLift.Rift' w m a
 -- 'Co' w a ~ 'Data.Functor.KanLift.Rift' w 'Identity' a
 -- @
 newtype CoT w m a = CoT { runCoT :: forall r. w (a -> m r) -> m r }
