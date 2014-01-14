@@ -45,8 +45,7 @@ import Data.Functor.Identity
 import Data.Functor.Kan.Lan
 import Data.Functor.Kan.Lift
 import Data.Functor.Plus
-import Data.Functor.Representable
-import Data.Key
+import Data.Functor.Rep
 import Data.Foldable
 import Data.Traversable
 import Data.Semigroup.Foldable
@@ -93,12 +92,6 @@ instance Functor (Coyoneda f) where
   fmap f (Coyoneda g v) = Coyoneda (f . g) v
   {-# INLINE fmap #-}
 
-type instance Key (Coyoneda f) = Key f
-
-instance Keyed f => Keyed (Coyoneda f) where
-  mapWithKey f (Coyoneda k a) = Coyoneda id $ mapWithKey (\x -> f x . k) a
-  {-# INLINE mapWithKey #-}
-
 instance Apply f => Apply (Coyoneda f) where
   m <.> n = liftCoyoneda $ lowerCoyoneda m <.> lowerCoyoneda n
   {-# INLINE (<.>) #-}
@@ -108,14 +101,6 @@ instance Applicative f => Applicative (Coyoneda f) where
   {-# INLINE pure #-}
   m <*> n = liftCoyoneda $ lowerCoyoneda m <*> lowerCoyoneda n
   {-# INLINE (<*>) #-}
-
-instance Zip f => Zip (Coyoneda f) where
-  zipWith f m n = liftCoyoneda $ zipWith f (lowerCoyoneda m) (lowerCoyoneda n)
-  {-# INLINE zipWith #-}
-
-instance ZipWithKey f => ZipWithKey (Coyoneda f) where
-  zipWithKey f m n = liftCoyoneda $ zipWithKey f (lowerCoyoneda m) (lowerCoyoneda n)
-  {-# INLINE zipWithKey #-}
 
 instance Alternative f => Alternative (Coyoneda f) where
   empty = liftCoyoneda empty
@@ -155,17 +140,12 @@ instance MonadPlus f => MonadPlus (Coyoneda f) where
   m `mplus` n = lift $ lowerM m `mplus` lowerM n
   {-# INLINE mplus #-}
 
-instance (Functor f, Lookup f) => Lookup (Coyoneda f) where
-  lookup k f = lookup k (lowerCoyoneda f)
-  {-# INLINE lookup #-}
-
-instance (Functor f, Indexable f) => Indexable (Coyoneda f) where
-  index = index . lowerCoyoneda
-  {-# INLINE index #-}
-
 instance Representable f => Representable (Coyoneda f) where
+  type Rep (Coyoneda f) = Rep f
   tabulate = liftCoyoneda . tabulate
   {-# INLINE tabulate #-}
+  index = index . lowerCoyoneda
+  {-# INLINE index #-}
 
 instance Extend w => Extend (Coyoneda w) where
   extended k (Coyoneda f v) = Coyoneda id $ extended (k . Coyoneda f) v
@@ -185,17 +165,9 @@ instance Foldable f => Foldable (Coyoneda f) where
   foldMap f (Coyoneda k a) = foldMap (f . k) a
   {-# INLINE foldMap #-}
 
-instance FoldableWithKey f => FoldableWithKey (Coyoneda f) where
-  foldMapWithKey f (Coyoneda k a) = foldMapWithKey (\x -> f x . k) a
-  {-# INLINE foldMapWithKey #-}
-
 instance Foldable1 f => Foldable1 (Coyoneda f) where
   foldMap1 f (Coyoneda k a) = foldMap1 (f . k) a
   {-# INLINE foldMap1 #-}
-
-instance FoldableWithKey1 f => FoldableWithKey1 (Coyoneda f) where
-  foldMapWithKey1 f (Coyoneda k a) = foldMapWithKey1 (\x -> f x . k) a
-  {-# INLINE foldMapWithKey1 #-}
 
 instance Traversable f => Traversable (Coyoneda f) where
   traverse f (Coyoneda k a) = Coyoneda id <$> traverse (f . k) a
@@ -204,14 +176,6 @@ instance Traversable f => Traversable (Coyoneda f) where
 instance Traversable1 f => Traversable1 (Coyoneda f) where
   traverse1 f (Coyoneda k a) = Coyoneda id <$> traverse1 (f . k) a
   {-# INLINE traverse1 #-}
-
-instance TraversableWithKey f => TraversableWithKey (Coyoneda f) where
-  traverseWithKey f (Coyoneda k a) = Coyoneda id <$> traverseWithKey (\x -> f x . k) a
-  {-# INLINE traverseWithKey #-}
-
-instance TraversableWithKey1 f => TraversableWithKey1 (Coyoneda f) where
-  traverseWithKey1 f (Coyoneda k a) = Coyoneda id <$> traverseWithKey1 (\x -> f x . k) a
-  {-# INLINE traverseWithKey1 #-}
 
 instance Distributive f => Distributive (Coyoneda f) where
   collect f = liftCoyoneda . collect (lowerCoyoneda . f)

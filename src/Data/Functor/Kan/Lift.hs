@@ -35,8 +35,7 @@ import Data.Functor.Adjunction
 import Data.Functor.Composition
 import Data.Functor.Compose
 import Data.Functor.Identity
-import Data.Functor.Representable
-import Data.Key
+import Data.Functor.Rep
 
 -- * Left Kan Lift
 
@@ -113,11 +112,11 @@ liftToAdjoint = toLift (unit . runIdentity)
 -- 'repToLift' . 'liftToRep' ≡ 'id'
 -- 'liftToRep' . 'repToLift' ≡ 'id'
 -- @
-repToLift :: Representable u => Key u -> a -> Lift u Identity a
+repToLift :: Representable u => Rep u -> a -> Lift u Identity a
 repToLift e a = Lift $ \k -> index (k (Identity a)) e
 {-# INLINE repToLift #-}
 
-liftToRep :: Representable u => Lift u Identity a -> (Key u, a)
+liftToRep :: Representable u => Lift u Identity a -> (Rep u, a)
 liftToRep (Lift m) = m $ \(Identity a) -> tabulate $ \e -> (e, a)
 {-# INLINE liftToRep #-}
 
@@ -142,10 +141,10 @@ composedAdjointToLift = rightAdjunct glift
 -- 'liftToComposedRep' . 'composedRepToLift' ≡ 'id'
 -- 'composedRepToLift' . 'liftToComposedRep' ≡ 'id'
 -- @
-liftToComposedRep :: (Functor h, Representable u) => Lift u h a -> (Key u, h a)
+liftToComposedRep :: (Functor h, Representable u) => Lift u h a -> (Rep u, h a)
 liftToComposedRep (Lift m) = decompose $ m $ \h -> tabulate $ \e -> Compose (e, h)
 {-# INLINE liftToComposedRep #-}
 
-composedRepToLift :: Representable u => Key u -> h a -> Lift u h a
+composedRepToLift :: Representable u => Rep u -> h a -> Lift u h a
 composedRepToLift e ha = Lift $ \h2uz -> index (h2uz ha) e
 {-# INLINE composedRepToLift #-}

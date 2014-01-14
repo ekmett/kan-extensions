@@ -29,8 +29,7 @@ module Data.Functor.Kan.Ran
 import Data.Functor.Adjunction
 import Data.Functor.Composition
 import Data.Functor.Identity
-import Data.Functor.Representable
-import Data.Key
+import Data.Functor.Rep
 
 -- | The right Kan extension of a 'Functor' h along a 'Functor' g.
 --
@@ -150,18 +149,18 @@ gran :: Ran g h (g a) -> h a
 gran (Ran f) = f id
 {-# INLINE gran #-}
 
-repToRan :: Representable u => Key u -> a -> Ran u Identity a
+repToRan :: Representable u => Rep u -> a -> Ran u Identity a
 repToRan e a = Ran $ \k -> Identity $ index (k a) e
 {-# INLINE repToRan #-}
 
-ranToRep :: Representable u => Ran u Identity a -> (Key u, a)
+ranToRep :: Representable u => Ran u Identity a -> (Rep u, a)
 ranToRep (Ran f) = runIdentity $ f (\a -> tabulate $ \e -> (e, a))
 {-# INLINE ranToRep #-}
 
-ranToComposedRep :: Representable u => Ran u h a -> h (Key u, a)
+ranToComposedRep :: Representable u => Ran u h a -> h (Rep u, a)
 ranToComposedRep (Ran f) = f (\a -> tabulate $ \e -> (e, a))
 {-# INLINE ranToComposedRep #-}
 
-composedRepToRan :: (Representable u, Functor h) => h (Key u, a) -> Ran u h a
+composedRepToRan :: (Representable u, Functor h) => h (Rep u, a) -> Ran u h a
 composedRepToRan hfa = Ran $ \k -> fmap (\(e, a) -> index (k a) e) hfa
 {-# INLINE composedRepToRan #-}

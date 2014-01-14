@@ -29,9 +29,8 @@ module Data.Functor.Contravariant.Coyoneda
 import Control.Arrow
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Adjunction
-import Data.Functor.Contravariant.Representable
+import Data.Functor.Contravariant.Rep
 
-type instance Value (Coyoneda f) = Value f
 
 -- | A 'Contravariant' functor (aka presheaf) suitable for Yoneda reduction.
 --
@@ -43,17 +42,14 @@ instance Contravariant (Coyoneda f) where
   contramap f (Coyoneda g m) = Coyoneda (g.f) m
   {-# INLINE contramap #-}
 
-instance Valued f => Valued (Coyoneda f) where
-  contramapWithValue beav (Coyoneda ac fc) = Coyoneda (left ac . beav) (contramapWithValue id fc)
-  {-# INLINE contramapWithValue #-}
-
-instance Coindexed f => Coindexed (Coyoneda f) where
-  coindex (Coyoneda ab fb) a = coindex fb (ab a)
-  {-# INLINE coindex #-}
-
 instance Representable f => Representable (Coyoneda f) where
-  contrarep = liftCoyoneda . contrarep
-  {-# INLINE contrarep #-}
+  type Rep (Coyoneda f) = Rep f
+  tabulate = liftCoyoneda . tabulate
+  {-# INLINE tabulate #-}
+  index (Coyoneda ab fb) a = index fb (ab a)
+  {-# INLINE index #-}
+  contramapWithRep beav (Coyoneda ac fc) = Coyoneda (left ac . beav) (contramapWithRep id fc)
+  {-# INLINE contramapWithRep #-}
 
 instance Adjunction f g => Adjunction (Coyoneda f) (Coyoneda g) where
   leftAdjunct f = liftCoyoneda . leftAdjunct (lowerCoyoneda . f)

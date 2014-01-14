@@ -1,3 +1,8 @@
+4.0
+---
+* Removed `keys` dependency
+* Now compatible with `adjunctions` 4.0
+
 3.7
 ---
 * Moved all the `Yoneda` variants around again.

@@ -59,8 +59,7 @@ import Data.Functor.Identity
 import Data.Functor.Kan.Ran
 import Data.Functor.Kan.Rift
 import Data.Functor.Plus
-import Data.Functor.Representable
-import Data.Key
+import Data.Functor.Rep
 import Data.Semigroup.Foldable
 import Data.Semigroup.Traversable
 import Data.Traversable
@@ -141,11 +140,6 @@ riftToYoneda m = Yoneda (runRift m . Identity)
 instance Functor (Yoneda f) where
   fmap f m = Yoneda (\k -> runYoneda m (k . f))
 
-type instance Key (Yoneda f) = Key f
-
-instance Keyed f => Keyed (Yoneda f) where
-  mapWithKey f = liftYoneda . mapWithKey f . lowerYoneda
-
 instance Apply f => Apply (Yoneda f) where
   Yoneda m <.> Yoneda n = Yoneda (\f -> m (f .) <.> n id)
 
@@ -153,47 +147,25 @@ instance Applicative f => Applicative (Yoneda f) where
   pure a = Yoneda (\f -> pure (f a))
   Yoneda m <*> Yoneda n = Yoneda (\f -> m (f .) <*> n id)
 
-instance Zip f => Zip (Yoneda f) where
-  zipWith f (Yoneda m) (Yoneda n) = liftYoneda $ zipWith f (m id) (n id)
-
-instance ZipWithKey f => ZipWithKey (Yoneda f) where
-  zipWithKey f (Yoneda m) (Yoneda n) = liftYoneda $ zipWithKey f (m id) (n id)
-
 instance Foldable f => Foldable (Yoneda f) where
   foldMap f = foldMap f . lowerYoneda
 
 instance Foldable1 f => Foldable1 (Yoneda f) where
   foldMap1 f = foldMap1 f . lowerYoneda
 
-instance FoldableWithKey f => FoldableWithKey (Yoneda f) where
-  foldMapWithKey f = foldMapWithKey f . lowerYoneda
-
-instance FoldableWithKey1 f => FoldableWithKey1 (Yoneda f) where
-  foldMapWithKey1 f = foldMapWithKey1 f . lowerYoneda
-
 instance Traversable f => Traversable (Yoneda f) where
   traverse f = fmap liftYoneda . traverse f . lowerYoneda
-
-instance TraversableWithKey f => TraversableWithKey (Yoneda f) where
-  traverseWithKey f = fmap liftYoneda . traverseWithKey f . lowerYoneda
 
 instance Traversable1 f => Traversable1 (Yoneda f) where
   traverse1 f = fmap liftYoneda . traverse1 f . lowerYoneda
 
-instance TraversableWithKey1 f => TraversableWithKey1 (Yoneda f) where
-  traverseWithKey1 f = fmap liftYoneda . traverseWithKey1 f . lowerYoneda
-
 instance Distributive f => Distributive (Yoneda f) where
   collect f = liftYoneda . collect (lowerYoneda . f)
 
-instance Indexable f => Indexable (Yoneda f) where
-  index = index . lowerYoneda
-
-instance Lookup f => Lookup (Yoneda f) where
-  lookup i = lookup i . lowerYoneda
-
 instance Representable g => Representable (Yoneda g) where
+  type Rep (Yoneda f) = Rep f
   tabulate = liftYoneda . tabulate
+  index = index . lowerYoneda
 
 instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
   unit = liftYoneda . fmap liftYoneda . unit
