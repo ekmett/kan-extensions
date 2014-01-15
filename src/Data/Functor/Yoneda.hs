@@ -163,7 +163,7 @@ instance Distributive f => Distributive (Yoneda f) where
   collect f = liftYoneda . collect (lowerYoneda . f)
 
 instance Representable g => Representable (Yoneda g) where
-  type Rep (Yoneda f) = Rep f
+  type Rep (Yoneda g) = Rep g
   tabulate = liftYoneda . tabulate
   index = index . lowerYoneda
 
