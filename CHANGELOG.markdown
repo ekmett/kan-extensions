@@ -1,3 +1,7 @@
+4.0.1
+-----
+* Bug fix so we can compile on GHC 7.4
+
 4.0
 ---
 * Removed `keys` dependency
