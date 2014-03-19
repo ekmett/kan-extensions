@@ -47,7 +47,7 @@ import Data.Functor.Rep
 newtype Lift g f a = Lift { runLift :: forall z. Functor z => (forall x. f x -> g (z x)) -> z a }
 
 instance Functor (Lift g h) where
-  fmap f (Lift g) = Lift (fmap f . g)
+  fmap f (Lift g) = Lift (\x -> fmap f (g x))
   {-# INLINE fmap #-}
 
 instance (Functor g, g ~ h) => Copointed (Lift g h) where
@@ -63,7 +63,7 @@ glift = leftAdjunct (\lka -> Lift (\k2gz -> rightAdjunct k2gz lka))
 
 -- | The universal property of 'Lift'
 toLift :: Functor z => (forall a. f a -> g (z a)) -> Lift g f b -> z b
-toLift = flip runLift
+toLift f l =  runLift l f
 {-# INLINE toLift #-}
 
 -- | When the adjunction exists
