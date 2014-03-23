@@ -1,3 +1,7 @@
+4.0.2
+-----
+* Made fixes necessary to work around changes in `ImpredicativeTypes` for GHC 7.8.1rc2
+
 4.0.1
 -----
 * Bug fix so we can compile on GHC 7.4
