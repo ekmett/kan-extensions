@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE Rank2Types #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
@@ -39,6 +40,7 @@ module Data.Functor.Contravariant.Day
 
 import Control.Applicative
 import Data.Functor.Contravariant
+import Data.Functor.Contravariant.Rep
 import Data.Proxy
 import Data.Tuple (swap)
 #ifdef __GLASGOW_HASKELL__
@@ -79,6 +81,22 @@ dayTyCon = mkTyCon "Data.Functor.Contravariant.Day.Day"
 
 instance Contravariant (Day f g) where
   contramap f (Day fb gc abc) = Day fb gc (abc . f)
+
+instance (Representable f, Representable g) => Representable (Day f g) where
+  type Rep (Day f g) = (Rep f, Rep g)
+
+  tabulate a2fg = Day (tabulate fst) (tabulate snd) $ \a -> let b = a2fg a in (b,b)
+
+  index (Day fb gc abc) a = case abc a of
+    (b, c) -> (index fb b, index gc c)
+  {-# INLINE index #-}
+
+  contramapWithRep d2eafg (Day fb gc abc) = Day (contramapWithRep id fb) (contramapWithRep id gc) $ \d -> case d2eafg d of
+    Left a -> case abc a of
+      (b, c) -> (Left b, Left c)
+    Right (vf, vg) -> (Right vf, Right vg)
+  {-# INLINE tabulate #-}
+
 
 -- | Break apart the Day convolution of two contravariant functors.
 runDay :: (Contravariant f, Contravariant g) => Day f g a -> (f a, g a)
