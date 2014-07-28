@@ -1,3 +1,7 @@
+4.0.3
+-----
+* Added `liftCoT0M`, `liftCoT1M`, `diter` and `dctrlM` for using `CoT w m` to model a state machine with states in `w` and effects in `m`.
+
 4.0.2
 -----
 * Made fixes necessary to work around changes in `ImpredicativeTypes` for GHC 7.8.1rc2

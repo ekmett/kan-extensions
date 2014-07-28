@@ -152,6 +152,18 @@ asksW f = liftCoT0 (Env.asks f)
 traceW :: (ComonadTraced e w, Monad m) => e -> CoT w m ()
 traceW e = liftCoT1 (Traced.trace e)
 
+liftCoT0M :: (Comonad w, Monad m) => (forall a. w a -> m s) -> CoT w m s
+liftCoT0M f = CoT (\wa -> extract wa =<< f wa)
+
+liftCoT1M :: Monad m => (forall a. w a -> m a) -> CoT w m ()
+liftCoT1M f = CoT (($ ()) <=< f)
+
+diter :: Functor f => a -> (a -> f a) -> Density (Cofree f) a
+diter x y = liftDensity . coiter y $ x
+
+dctrlM :: (Comonad w, Monad m) => (forall a. w a -> m (w a)) -> CoT (Density w) m ()
+dctrlM k = liftCoT1M (\(Density w a) -> liftM w (k a))
+
 instance (Comonad w, MonadReader e m) => MonadReader e (CoT w m) where
   ask = lift Reader.ask
   local f m = CoT (local f . runCoT m)
