@@ -1,3 +1,7 @@
+4.1
+---
+* Moved co- and contra- variant `Day` convolution from `contravariant` to here. Day convolution is intimately connected to `Rift`.
+
 4.0.3
 -----
 * Added `liftCoT0M`, `liftCoT1M`, `diter` and `dctrlM` for using `CoT w m` to model a state machine with states in `w` and effects in `m`.
