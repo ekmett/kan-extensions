@@ -1,6 +1,6 @@
 name:          kan-extensions
 category:      Data Structures, Monads, Comonads, Functors
-version:       4.0.2
+version:       4.1
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -45,21 +45,22 @@ library
     base          >= 4       && < 5,
     comonad       >= 4       && < 5,
     containers    >= 0.4     && < 0.6,
-    contravariant >= 0.4.4   && < 1,
+    contravariant >= 1       && < 2,
     distributive  >= 0.2.2   && < 1,
     free          >= 4       && < 5,
-    mtl           >= 2.0.1   && < 2.2,
+    mtl           >= 2.0.1   && < 2.3,
     pointed       >= 4       && < 5,
     semigroupoids >= 4       && < 5,
-    speculation   >= 1.5.0.1 && < 2,
-    transformers  >= 0.2     && < 0.4
+    transformers  >= 0.2     && < 0.5
 
   exposed-modules:
     Control.Comonad.Density
     Control.Monad.Co
     Control.Monad.Codensity
+    Data.Functor.Contravariant.Day
     Data.Functor.Contravariant.Yoneda
     Data.Functor.Contravariant.Coyoneda
+    Data.Functor.Day
     Data.Functor.Kan.Lan
     Data.Functor.Kan.Lift
     Data.Functor.Kan.Ran

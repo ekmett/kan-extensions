@@ -7,9 +7,6 @@
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
-#ifndef MIN_VERSION_speculation
-#define MIN_VERSION_speculation(x,y,z) 1
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011 Edward Kmett
@@ -50,34 +47,29 @@ module Control.Monad.Co
   -- * Monad Transformers from Comonads
   , CoT(..)
   -- * Klesili from CoKleisli
-  , liftCoT0, lowerCoT0, lowerCo0
-  , liftCoT1, lowerCoT1, lowerCo1
+  , liftCoT0, liftCoT0M, lowerCoT0, lowerCo0
+  , liftCoT1, liftCoT1M, lowerCoT1, lowerCo1
+  , diter, dctrlM
   , posW, peekW, peeksW
   , askW, asksW, traceW
   )where
 
 import Control.Applicative
 import Control.Comonad
+import Control.Comonad.Cofree
+import Control.Comonad.Density
 import Control.Comonad.Env.Class as Env
-import Control.Comonad.Traced.Class as Traced
 import Control.Comonad.Store.Class
-import Control.Monad.Trans.Class
+import Control.Comonad.Traced.Class as Traced
+import Control.Monad.Error.Class
 import Control.Monad.IO.Class
+import Control.Monad.Identity
 import Control.Monad.Reader.Class as Reader
 import Control.Monad.State.Class
-import Control.Monad.Error.Class
+import Control.Monad.Trans.Class
 import Control.Monad.Writer.Class as Writer
-import Control.Monad.Identity
 import Data.Functor.Bind
 import Data.Functor.Extend
-import Control.Concurrent.Speculation
-import Control.Concurrent.Speculation.Class
-
-instance Comonad w => MonadSpec (CoT w m) where
-  specByM f g a = CoT (\k -> specBy f g (extract k) a)
-#if !(MIN_VERSION_speculation(1,5,0))
-  specByM' f g a = CoT (\k -> specBy' f g (extract k) a)
-#endif
 
 type Co w = CoT w Identity
 

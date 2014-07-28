@@ -6,10 +6,6 @@
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
-
-#ifndef MIN_VERSION_speculation
-#define MIN_VERSION_speculation(x,y,z) 1
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Codensity
@@ -31,8 +27,6 @@ module Control.Monad.Codensity
   ) where
 
 import Control.Applicative
-import Control.Concurrent.Speculation
-import Control.Concurrent.Speculation.Class
 import Control.Monad (ap, MonadPlus(..))
 import Control.Monad.Free
 import Control.Monad.IO.Class
@@ -59,14 +53,6 @@ import Data.Functor.Rep
 newtype Codensity m a = Codensity
   { runCodensity :: forall b. (a -> m b) -> m b
   }
-
-instance MonadSpec (Codensity m) where
-  specByM f g a = Codensity $ \k -> specBy f g k a
-  {-# INLINE specByM #-}
-#if !(MIN_VERSION_speculation(1,5,0))
-  specByM' f g a = Codensity $ \k -> specBy' f g k a
-  {-# INLINE specByM' #-}
-#endif
 
 instance Functor (Codensity k) where
   fmap f (Codensity m) = Codensity (\k -> m (k . f))

@@ -9,9 +9,6 @@
 {-# LANGUAGE Trustworthy #-}
 #endif
 
-#ifndef MIN_VERSION_speculation
-#define MIN_VERSION_speculation(x,y,z) 1
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Yoneda
@@ -47,8 +44,6 @@ import Control.Monad.Free.Class
 import Control.Monad.Trans.Class
 import Control.Comonad
 import Control.Comonad.Trans.Class
-import Control.Concurrent.Speculation
-import Control.Concurrent.Speculation.Class
 import Data.Distributive
 import Data.Foldable
 import Data.Function (on)
@@ -65,14 +60,6 @@ import Data.Semigroup.Traversable
 import Data.Traversable
 import Text.Read hiding (lift)
 import Prelude hiding (sequence, lookup, zipWith)
-
-instance Monad m => MonadSpec (Yoneda m) where
-  specByM f g a = Yoneda $ \k -> specBy f g (return . k) a
-  {-# INLINE specByM #-}
-#if !(MIN_VERSION_speculation(1,5,0))
-  specByM' f g a = Yoneda $ \k -> specBy' f g (return . k) a
-  {-# INLINE specByM' #-}
-#endif
 
 -- | @Yoneda f a@ can be viewed as the partial application of 'fmap' to its second argument.
 newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
