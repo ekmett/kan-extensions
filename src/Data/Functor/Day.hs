@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DeriveDataTypeable #-}
@@ -37,7 +38,9 @@ module Data.Functor.Day
   ) where
 
 import Control.Applicative
+import Data.Distributive
 import Data.Functor.Identity
+import Data.Functor.Rep
 #ifdef __GLASGOW_HASKELL__
 import Data.Typeable
 #endif
@@ -73,6 +76,14 @@ dayTyCon = mkTyCon "Data.Functor.Day.Day"
 
 instance Functor (Day f g) where
   fmap f (Day fb gc bca) = Day fb gc $ \b c -> f (bca b c)
+
+instance (Representable f, Representable g) => Distributive (Day f g) where
+  distribute f = Day (tabulate id) (tabulate id) $ \x y -> fmap (\(Day m n o) -> o (index m x) (index n y)) f
+
+instance (Representable f, Representable g) => Representable (Day f g) where
+  type Rep (Day f g) = (Rep f, Rep g)
+  tabulate f = Day (tabulate id) (tabulate id) (curry f)
+  index (Day m n o) (x,y) = o (index m x) (index n y)
 
 -- | Day convolution provides a monoidal product. The associativity
 -- of this monoid is witnessed by 'assoc' and 'disassoc'.
