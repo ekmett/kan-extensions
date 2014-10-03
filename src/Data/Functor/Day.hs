@@ -77,6 +77,12 @@ dayTyCon = mkTyCon "Data.Functor.Day.Day"
 instance Functor (Day f g) where
   fmap f (Day fb gc bca) = Day fb gc $ \b c -> f (bca b c)
 
+instance (Applicative f, Applicative g) => Applicative (Day f g) where
+  pure x = Day (pure ()) (pure ()) (\_ _ -> x)
+  (Day fa fb u) <*> (Day gc gd v) =
+    Day ((,) <$> fa <*> gc) ((,) <$> fb <*> gd)
+        (\(a,c) (b,d) -> u a b (v c d))
+
 instance (Representable f, Representable g) => Distributive (Day f g) where
   distribute f = Day (tabulate id) (tabulate id) $ \x y -> fmap (\(Day m n o) -> o (index m x) (index n y)) f
 
