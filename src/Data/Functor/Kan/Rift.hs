@@ -54,7 +54,7 @@ import Data.Pointed
 --
 -- @
 -- riftIso1 :: Functor g => UniversalRift g f a -> Rift g f a
--- riftIso1 (UniversalRift h z) = Rift $ \g -> h $ fmap (\k -> k <$> z) g
+-- riftIso1 (UniversalRift h z) = Rift $ \\g -> h $ fmap (\\k -> k \<$\> z) g
 -- @
 --
 -- @
@@ -65,9 +65,9 @@ import Data.Pointed
 -- @
 -- riftIso1 (riftIso2 (Rift h)) =
 -- riftIso1 (UniversalRift h id) =          -- by definition
--- Rift $ \g -> h $ fmap (\k -> k <$> id) g -- by definition
--- Rift $ \g -> h $ fmap id g               -- <$> = (.) and (.id)
--- Rift $ \g -> h g                         -- by functor law
+-- Rift $ \\g -> h $ fmap (\\k -> k \<$\> id) g -- by definition
+-- Rift $ \\g -> h $ fmap id g               -- \<$\> = (.) and (.id)
+-- Rift $ \\g -> h g                         -- by functor law
 -- Rift h                                   -- eta reduction
 -- @
 --
