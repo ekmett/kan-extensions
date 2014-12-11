@@ -1,3 +1,12 @@
+4.1.1
+---
+* Added `Applicative` instance for `Day`
+* Added `Typeable` instance for `Codensity`
+
+4.1.0.1
+----
+* Added `tagged` dependency
+
 4.1
 ---
 * Moved co- and contra- variant `Day` convolution from `contravariant` to here. Day convolution is intimately connected to `Rift`.
