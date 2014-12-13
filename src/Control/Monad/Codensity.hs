@@ -206,6 +206,12 @@ instance MonadReader r m => MonadState r (Codensity m) where
   put s = Codensity (\k -> local (const s) (k ()))
   {-# INLINE put #-}
 
+instance MonadReader r m => MonadReader r (Codensity m) where
+  ask = Codensity (ask >>=)
+  {-# INLINE ask #-}
+  local f m = Codensity $ \c -> ask >>= \r -> local f . runCodensity m $ local (const r) . c
+  {-# INLINE local #-}
+
 -- | Right associate all binds in a computation that generates a free monad
 --
 -- This can improve the asymptotic efficiency of the result, while preserving
