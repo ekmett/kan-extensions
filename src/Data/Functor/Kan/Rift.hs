@@ -33,7 +33,6 @@ import Control.Applicative
 import Data.Functor.Adjunction
 import Data.Functor.Composition
 import Data.Functor.Identity
-import Data.Pointed
 
 -- * Right Kan Lift
 
@@ -105,10 +104,6 @@ newtype Rift g h a =
 instance Functor g => Functor (Rift g h) where
   fmap f (Rift g) = Rift (g . fmap (.f))
   {-# INLINE fmap #-}
-
-instance (Functor g, g ~ h) => Pointed (Rift g h) where
-  point a = Rift (fmap ($a))
-  {-# INLINE point #-}
 
 instance (Functor g, g ~ h) => Applicative (Rift g h) where
   pure a = Rift (fmap ($a))
