@@ -1,3 +1,11 @@
+4.2.1
+---
+* Add profunctors dependency for use of coercion composition operators
+
+4.2
+---
+* Remove pointed dependency
+
 4.1.1
 ---
 * Added `Applicative` instance for `Day`

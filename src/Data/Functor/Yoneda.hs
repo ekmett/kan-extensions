@@ -55,6 +55,7 @@ import Data.Functor.Kan.Ran
 import Data.Functor.Kan.Rift
 import Data.Functor.Plus
 import Data.Functor.Rep
+import Data.Profunctor.Unsafe
 import Data.Semigroup.Foldable
 import Data.Semigroup.Traversable
 import Data.Traversable
@@ -89,9 +90,6 @@ liftYoneda a = Yoneda (\f -> fmap f a)
 lowerYoneda :: Yoneda f a -> f a
 lowerYoneda (Yoneda f) = f id
 
-{-# RULES "lower/lift=id" liftYoneda . lowerYoneda = id #-}
-{-# RULES "lift/lower=id" lowerYoneda . liftYoneda = id #-}
-
 -- | @Yoneda f@ can be viewed as the right Kan extension of @f@ along the 'Identity' functor.
 --
 -- @
@@ -104,9 +102,6 @@ yonedaToRan (Yoneda m) = Ran (m . fmap runIdentity)
 ranToYoneda :: Ran Identity f a -> Yoneda f a
 ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
 
-{-# RULES "yonedaToRan/ranToYoneda=id" yonedaToRan . ranToYoneda = id #-}
-{-# RULES "ranToYoneda/yonedaToRan=id" ranToYoneda . yonedaToRan = id #-}
-
 -- | @Yoneda f@ can be viewed as the right Kan lift of @f@ along the 'Identity' functor.
 --
 -- @
@@ -114,15 +109,12 @@ ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
 -- 'riftToYoneda' . 'yonedaToRift' ≡ 'id'
 -- @
 yonedaToRift :: Yoneda f a -> Rift Identity f a
-yonedaToRift m = Rift (runYoneda m . runIdentity)
+yonedaToRift (Yoneda m) = Rift (m .# runIdentity)
 {-# INLINE yonedaToRift #-}
 
 riftToYoneda :: Rift Identity f a -> Yoneda f a
-riftToYoneda m = Yoneda (runRift m . Identity)
+riftToYoneda (Rift m) = Yoneda (m .# Identity)
 {-# INLINE riftToYoneda #-}
-
-{-# RULES "yonedaToRift/riftToYoneda=id" yonedaToRift . riftToYoneda = id #-}
-{-# RULES "riftToYoneda/yonedaToRift=id" riftToYoneda . yonedaToRift = id #-}
 
 instance Functor (Yoneda f) where
   fmap f m = Yoneda (\k -> runYoneda m (k . f))

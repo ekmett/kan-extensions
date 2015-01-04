@@ -47,6 +47,7 @@ import Data.Functor.Kan.Lift
 import Data.Functor.Plus
 import Data.Functor.Rep
 import Data.Foldable
+import Data.Profunctor.Unsafe
 import Data.Traversable
 import Data.Semigroup.Foldable
 import Data.Semigroup.Traversable
@@ -65,13 +66,10 @@ data Coyoneda f a where
 -- 'lanToCoyoneda' . 'coyonedaToLan' ≡ 'id'
 -- @
 coyonedaToLan :: Coyoneda f a -> Lan Identity f a
-coyonedaToLan (Coyoneda ba fb) = Lan (ba . runIdentity) fb
+coyonedaToLan (Coyoneda ba fb) = Lan (ba .# runIdentity) fb
 
 lanToCoyoneda :: Lan Identity f a -> Coyoneda f a
-lanToCoyoneda (Lan iba fb) = Coyoneda (iba . Identity) fb
-
-{-# RULES "coyonedaToLan/lanToCoyoneda=id" coyonedaToLan . lanToCoyoneda = id #-}
-{-# RULES "lanToCoyoneda/coyonedaToLan=id" lanToCoyoneda . coyonedaToLan = id #-}
+lanToCoyoneda (Lan iba fb) = Coyoneda (iba .# Identity) fb
 
 -- | @'Coyoneda' f@ is the left Kan lift of @f@ along the 'Identity' functor.
 --

@@ -96,7 +96,7 @@ import Data.Functor.Identity
 --
 -- An alternative way to view that is to note that whenever @f@ is a left adjoint then @f -| 'Rift' f 'Identity'@, and since @'Rift' f f@ is isomorphic to @'Rift' f 'Identity' (f a)@, this is the 'Monad' formed by the adjunction.
 --
--- @'Rift' 'Identity' m@ can be a 'Monad' for any 'Monad' @m@, as it is isomorphic to @'Yoneda' m@.
+-- @'Rift' 'Identity' m@ can be a 'Monad' for any 'Monad' @m@, as it is isomorphic to @'Data.Functor.Yoneda.Yoneda' m@.
 
 newtype Rift g h a =
   Rift { runRift :: forall r. g (a -> r) -> h r }
