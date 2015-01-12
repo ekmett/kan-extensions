@@ -1,6 +1,5 @@
 4.2.1
 ---
-* Add profunctors dependency for use of coercion composition operators
 * Add `liftRift` and `lowerRift`
 
 4.2
