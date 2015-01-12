@@ -26,7 +26,7 @@ module Data.Functor.Kan.Rift
   , composeRift, decomposeRift
   , adjointToRift, riftToAdjoint
   , composedAdjointToRift, riftToComposedAdjoint
-  , rap
+  , liftRift, lowerRift, rap
   ) where
 
 import Control.Applicative
@@ -110,6 +110,30 @@ instance (Functor g, g ~ h) => Applicative (Rift g h) where
   {-# INLINE pure #-}
   Rift mf <*> Rift ma = Rift (ma . mf . fmap (.))
   {-# INLINE (<*>) #-}
+
+-- | The natural isomorphism between @f@ and @Rift f f@.
+-- @
+-- 'lowerRift' '.' 'liftRift' ≡ 'id'
+-- 'liftRift' '.' 'lowerRift' ≡ 'id'
+-- @
+--
+-- @
+-- 'lowerRift' ('liftRift' x)     -- definition
+-- 'lowerRift' ('Rift' ('<*>' x))   -- definition
+-- ('<*>' x) ('pure' 'id')          -- beta reduction
+-- 'pure' 'id' '<*>' x              -- Applicative identity law
+-- x
+-- @
+liftRift :: Applicative f => f a -> Rift f f a
+liftRift fa = Rift (<*> fa)
+{-# INLINE liftRift #-}
+
+-- | Lower 'Rift' by applying 'pure' 'id' to the continuation.
+--
+-- See 'liftRift'.
+lowerRift :: Applicative f => Rift f g a -> g a
+lowerRift (Rift f) = f (pure id)
+{-# INLINE lowerRift #-}
 
 -- | Indexed applicative composition of right Kan lifts.
 rap :: Functor f => Rift f g (a -> b) -> Rift g h a -> Rift f h b
