@@ -1,6 +1,23 @@
-4.1.1
+4.2.2
 -----
 * `semigroupoids` 5 support
+
+4.2.1
+---
+* Add `liftRift` and `lowerRift`
+
+4.2
+---
+* Remove pointed dependency
+
+4.1.1
+---
+* Added `Applicative` instance for `Day`
+* Added `Typeable` instance for `Codensity`
+
+4.1.0.1
+----
+* Added `tagged` dependency
 
 4.1
 ---

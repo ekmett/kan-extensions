@@ -30,7 +30,6 @@ module Data.Functor.Kan.Lift
   , liftToComposedRep, composedRepToLift
   ) where
 
-import Data.Copointed
 import Data.Functor.Adjunction
 import Data.Functor.Composition
 import Data.Functor.Compose
@@ -49,10 +48,6 @@ newtype Lift g f a = Lift { runLift :: forall z. Functor z => (forall x. f x -> 
 instance Functor (Lift g h) where
   fmap f (Lift g) = Lift (\x -> fmap f (g x))
   {-# INLINE fmap #-}
-
-instance (Functor g, g ~ h) => Copointed (Lift g h) where
-  copoint x = runIdentity (runLift x (fmap Identity))
-  {-# INLINE copoint #-}
 
 -- |
 --

@@ -208,7 +208,7 @@ instance Adjunction f g => Adjunction (Coyoneda f) (Coyoneda g) where
   counit = counit . fmap lowerCoyoneda . lowerCoyoneda
   {-# INLINE counit #-}
 
--- | Yoneda "expansion"
+-- | Yoneda \"expansion\"
 --
 -- @
 -- 'liftCoyoneda' . 'lowerCoyoneda' ≡ 'id'
