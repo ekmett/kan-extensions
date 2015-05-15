@@ -1,3 +1,7 @@
+4.1.1
+-----
+* `semigroupoids` 5 support
+
 4.1
 ---
 * Moved co- and contra- variant `Day` convolution from `contravariant` to here. Day convolution is intimately connected to `Rift`.
