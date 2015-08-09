@@ -37,7 +37,7 @@ import Data.Functor.Rep
 -- the definition in of a right Kan extension in terms of an End, but we can derive an equivalent definition
 -- from the universal property.
 --
--- Given a 'Functor' @h : C -> D@ and a 'Functor' @g : C -> C'@, we want to find extend @h@ /back/ along @g@
+-- Given a 'Functor' @h : C -> D@ and a 'Functor' @g : C -> C'@, we want to extend @h@ /back/ along @g@
 -- to give @Ran g h : C' -> C@, such that the natural transformation @'gran' :: Ran g h (g a) -> h a@ exists.
 --
 -- In some sense this is trying to approximate the inverse of @g@ by using one of
