@@ -1,3 +1,7 @@
+4.2.3
+-----
+* Builds clean on GHC 7.10
+
 4.2.2
 -----
 * `semigroupoids` 5 support
