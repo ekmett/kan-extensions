@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
 
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL__ < 710
 {-# LANGUAGE Trustworthy #-}
 #endif
 -------------------------------------------------------------------------------------------
@@ -29,7 +29,9 @@ module Data.Functor.Kan.Rift
   , liftRift, lowerRift, rap
   ) where
 
+#if __GLASGOW_HASKELL__ < 710
 import Control.Applicative
+#endif
 import Data.Functor.Adjunction
 import Data.Functor.Composition
 import Data.Functor.Identity

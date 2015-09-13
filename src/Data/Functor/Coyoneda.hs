@@ -70,8 +70,8 @@ coyonedaToLan (Coyoneda ba fb) = Lan (ba . runIdentity) fb
 lanToCoyoneda :: Lan Identity f a -> Coyoneda f a
 lanToCoyoneda (Lan iba fb) = Coyoneda (iba . Identity) fb
 
-{-# RULES "coyonedaToLan/lanToCoyoneda=id" coyonedaToLan . lanToCoyoneda = id #-}
-{-# RULES "lanToCoyoneda/coyonedaToLan=id" lanToCoyoneda . coyonedaToLan = id #-}
+-- {-# RULES "coyonedaToLan/lanToCoyoneda=id" coyonedaToLan . lanToCoyoneda = id #-}
+-- {-# RULES "lanToCoyoneda/coyonedaToLan=id" lanToCoyoneda . coyonedaToLan = id #-}
 
 -- | @'Coyoneda' f@ is the left Kan lift of @f@ along the 'Identity' functor.
 --
@@ -85,8 +85,8 @@ coyonedaToLift (Coyoneda ba fb) = Lift $ \ f2iz -> ba <$> runIdentity (f2iz fb)
 liftToCoyoneda :: Functor f => Lift Identity f a -> Coyoneda f a
 liftToCoyoneda (Lift m) = Coyoneda id (m Identity)
 
-{-# RULES "coyonedaToLift/liftToCoyoneda=id" coyonedaToLift . liftToCoyoneda = id #-}
-{-# RULES "liftToCoyoneda/coyonedaToLift=id" liftToCoyoneda . coyonedaToLift = id #-}
+-- {-# RULES "coyonedaToLift/liftToCoyoneda=id" coyonedaToLift . liftToCoyoneda = id #-}
+-- {-# RULES "liftToCoyoneda/coyonedaToLift=id" liftToCoyoneda . coyonedaToLift = id #-}
 
 instance Functor (Coyoneda f) where
   fmap f (Coyoneda g v) = Coyoneda (f . g) v

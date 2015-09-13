@@ -89,8 +89,8 @@ liftYoneda a = Yoneda (\f -> fmap f a)
 lowerYoneda :: Yoneda f a -> f a
 lowerYoneda (Yoneda f) = f id
 
-{-# RULES "lower/lift=id" liftYoneda . lowerYoneda = id #-}
-{-# RULES "lift/lower=id" lowerYoneda . liftYoneda = id #-}
+-- {-# RULES "lower/lift=id" liftYoneda . lowerYoneda = id #-}
+--{-# RULES "lift/lower=id" lowerYoneda . liftYoneda = id #-}
 
 -- | @Yoneda f@ can be viewed as the right Kan extension of @f@ along the 'Identity' functor.
 --
@@ -104,8 +104,8 @@ yonedaToRan (Yoneda m) = Ran (m . fmap runIdentity)
 ranToYoneda :: Ran Identity f a -> Yoneda f a
 ranToYoneda (Ran m) = Yoneda (m . fmap Identity)
 
-{-# RULES "yonedaToRan/ranToYoneda=id" yonedaToRan . ranToYoneda = id #-}
-{-# RULES "ranToYoneda/yonedaToRan=id" ranToYoneda . yonedaToRan = id #-}
+-- {-# RULES "yonedaToRan/ranToYoneda=id" yonedaToRan . ranToYoneda = id #-}
+-- {-# RULES "ranToYoneda/yonedaToRan=id" ranToYoneda . yonedaToRan = id #-}
 
 -- | @Yoneda f@ can be viewed as the right Kan lift of @f@ along the 'Identity' functor.
 --
@@ -121,8 +121,8 @@ riftToYoneda :: Rift Identity f a -> Yoneda f a
 riftToYoneda m = Yoneda (runRift m . Identity)
 {-# INLINE riftToYoneda #-}
 
-{-# RULES "yonedaToRift/riftToYoneda=id" yonedaToRift . riftToYoneda = id #-}
-{-# RULES "riftToYoneda/yonedaToRift=id" riftToYoneda . yonedaToRift = id #-}
+-- {-# RULES "yonedaToRift/riftToYoneda=id" yonedaToRift . riftToYoneda = id #-}
+-- {-# RULES "riftToYoneda/yonedaToRift=id" riftToYoneda . yonedaToRift = id #-}
 
 instance Functor (Yoneda f) where
   fmap f m = Yoneda (\k -> runYoneda m (k . f))
