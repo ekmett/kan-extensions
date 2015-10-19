@@ -3,10 +3,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
+#if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE DeriveDataTypeable #-}
 #endif
 
@@ -31,7 +31,7 @@ module Control.Monad.Codensity
   ) where
 
 import Control.Applicative
-import Control.Monad (ap, MonadPlus(..))
+import Control.Monad (MonadPlus(..))
 import Control.Monad.Free
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
@@ -42,7 +42,7 @@ import Data.Functor.Apply
 import Data.Functor.Kan.Ran
 import Data.Functor.Plus
 import Data.Functor.Rep
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
+#if __GLASGOW_HASKELL__ >= 708
 import Data.Typeable
 #endif
 
@@ -60,7 +60,7 @@ import Data.Typeable
 newtype Codensity m a = Codensity
   { runCodensity :: forall b. (a -> m b) -> m b
   }
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
+#if __GLASGOW_HASKELL__ >= 708
     deriving Typeable
 #endif
 
@@ -69,13 +69,13 @@ instance Functor (Codensity k) where
   {-# INLINE fmap #-}
 
 instance Apply (Codensity f) where
-  (<.>) = ap
+  (<.>) = (<*>)
   {-# INLINE (<.>) #-}
 
 instance Applicative (Codensity f) where
   pure x = Codensity (\k -> k x)
   {-# INLINE pure #-}
-  (<*>) = ap
+  Codensity f <*> Codensity g = Codensity (\bfr -> f (\ab -> g (bfr . ab)))
   {-# INLINE (<*>) #-}
 
 instance Monad (Codensity f) where
@@ -116,11 +116,19 @@ instance Alternative v => Alternative (Codensity v) where
   Codensity m <|> Codensity n = Codensity (\k -> m k <|> n k)
   {-# INLINE (<|>) #-}
 
+#if __GLASGOW_HASKELL__ >= 710
+instance Alternative v => MonadPlus (Codensity v) where
+  mzero = empty
+  {-# INLINE mzero #-}
+  mplus = (<|>)
+  {-# INLINE mplus #-}
+#else
 instance MonadPlus v => MonadPlus (Codensity v) where
   mzero = Codensity (\_ -> mzero)
   {-# INLINE mzero #-}
   Codensity m `mplus` Codensity n = Codensity (\k -> m k `mplus` n k)
   {-# INLINE mplus #-}
+#endif
 
 -- |
 -- This serves as the *left*-inverse (retraction) of 'lift'.
@@ -136,8 +144,13 @@ instance MonadPlus v => MonadPlus (Codensity v) where
 -- e.g. @'Codensity' ((->) s)) a ~ forall r. (a -> s -> r) -> s -> r@
 -- could support a full complement of @'MonadState' s@ actions, while @(->) s@
 -- is limited to @'MonadReader' s@ actions.
+#if __GLASGOW_HASKELL__ >= 710
+lowerCodensity :: Applicative f => Codensity f a -> f a
+lowerCodensity a = runCodensity a pure
+#else
 lowerCodensity :: Monad m => Codensity m a -> m a
 lowerCodensity a = runCodensity a return
+#endif
 {-# INLINE lowerCodensity #-}
 
 -- | The 'Codensity' monad of a right adjoint is isomorphic to the
