@@ -117,11 +117,7 @@ instance Alternative v => Alternative (Codensity v) where
   {-# INLINE (<|>) #-}
 
 #if __GLASGOW_HASKELL__ >= 710
-instance Alternative v => MonadPlus (Codensity v) where
-  mzero = empty
-  {-# INLINE mzero #-}
-  mplus = (<|>)
-  {-# INLINE mplus #-}
+instance Alternative v => MonadPlus (Codensity v)
 #else
 instance MonadPlus v => MonadPlus (Codensity v) where
   mzero = Codensity (\_ -> mzero)
