@@ -8,7 +8,6 @@
 #endif
 #if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 #endif
 
 -----------------------------------------------------------------------------
@@ -32,7 +31,7 @@ module Control.Monad.Codensity
   ) where
 
 import Control.Applicative
-import Control.Monad (ap, MonadPlus(..))
+import Control.Monad (MonadPlus(..))
 import Control.Monad.Free
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
