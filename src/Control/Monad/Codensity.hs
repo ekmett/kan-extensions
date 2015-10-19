@@ -45,7 +45,6 @@ import Data.Functor.Plus
 import Data.Functor.Rep
 #if __GLASGOW_HASKELL__ >= 708
 import Data.Typeable
-import Data.Coerce
 #endif
 
 -- |
@@ -91,18 +90,8 @@ instance MonadIO m => MonadIO (Codensity m) where
   {-# INLINE liftIO #-}
 
 instance MonadTrans Codensity where
-#if __GLASGOW_HASKELL__ >= 708
-  lift = Codensity #. (>>=)
-#else
   lift m = Codensity (m >>=)
-#endif
   {-# INLINE lift #-}
-
-#if __GLASGOW_HASKELL__ >= 708
-( #. ) :: Coercible c b => (b -> c) -> (a -> b) -> a -> c
-( #. ) _ = coerce (\x -> x :: b) :: forall a b. Coercible b a => a -> b
-{-# INLINE ( #. ) #-}
-#endif
 
 instance Alt v => Alt (Codensity v) where
   Codensity m <!> Codensity n = Codensity (\k -> m k <!> n k)
