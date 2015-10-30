@@ -54,7 +54,7 @@ import Data.Typeable
 -- repeated applications of @(>>=)@.
 --
 -- See \"Asymptotic Improvement of Computations over Free Monads\" by Janis
--- Voightländer for more information about this type.
+-- Voigtländer for more information about this type.
 --
 -- <http://www.iai.uni-bonn.de/~jv/mpc08.pdf>
 newtype Codensity m a = Codensity
