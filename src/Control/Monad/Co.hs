@@ -101,7 +101,7 @@ instance Comonad w => Applicative (CoT w m) where
   mf <*> ma = mf >>= \f -> fmap f ma
 
 instance Comonad w => Monad (CoT w m) where
-  return a = CoT (`extract` a)
+  return = pure
   CoT k >>= f = CoT (k . extend (\wa a -> runCoT (f a) wa))
 
 instance Comonad w => MonadTrans (CoT w) where
