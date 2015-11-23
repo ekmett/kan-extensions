@@ -79,7 +79,7 @@ instance Applicative (Codensity f) where
   {-# INLINE (<*>) #-}
 
 instance Monad (Codensity f) where
-  return x = Codensity (\k -> k x)
+  return = pure
   {-# INLINE return #-}
   m >>= k = Codensity (\c -> runCodensity m (\a -> runCodensity (k a) c))
   {-# INLINE (>>=) #-}

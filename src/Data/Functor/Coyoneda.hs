@@ -121,8 +121,10 @@ instance Bind m => Bind (Coyoneda m) where
   {-# INLINE (>>-) #-}
 
 instance Monad m => Monad (Coyoneda m) where
+#if __GLASGOW_HASKELL__ < 710
   return = Coyoneda id . return
   {-# INLINE return #-}
+#endif
   Coyoneda f v >>= k = lift (v >>= lowerM . k . f)
   {-# INLINE (>>=) #-}
 
