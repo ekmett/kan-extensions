@@ -60,6 +60,15 @@ data Coyoneda f a where
 
 -- | @Coyoneda f@ is the left Kan extension of @f@ along the 'Identity' functor.
 --
+-- @Coyoneda f@ is always a functor, even if @f@ is not. In this case, it
+-- is called the /free functor over @f@/. Note the following categorical fine
+-- print: If @f@ is not a functor, @Coyoneda f@ is actually not the left Kan
+-- extension of @f@ along the 'Identity' functor, but along the inclusion
+-- functor from the discrete subcategory of /Hask/ which contains only identity
+-- functions as morphisms to the full category /Hask/. (This is because @f@,
+-- not being a proper functor, can only be interpreted as a categorical functor
+-- by restricting the source category to only contain identities.)
+--
 -- @
 -- 'coyonedaToLan' . 'lanToCoyoneda' ≡ 'id'
 -- 'lanToCoyoneda' . 'coyonedaToLan' ≡ 'id'
