@@ -26,8 +26,6 @@ module Data.Functor.Coyoneda
   , liftCoyoneda, lowerCoyoneda, lowerM
   -- * as a Left Kan extension
   , coyonedaToLan, lanToCoyoneda
-  -- * as a Left Kan lift
-  , coyonedaToLift, liftToCoyoneda
   ) where
 
 import Control.Applicative
@@ -43,7 +41,6 @@ import Data.Functor.Bind
 import Data.Functor.Extend
 import Data.Functor.Identity
 import Data.Functor.Kan.Lan
-import Data.Functor.Kan.Lift
 import Data.Functor.Plus
 import Data.Functor.Rep
 import Data.Foldable
@@ -72,21 +69,6 @@ lanToCoyoneda (Lan iba fb) = Coyoneda (iba . Identity) fb
 
 -- {-# RULES "coyonedaToLan/lanToCoyoneda=id" coyonedaToLan . lanToCoyoneda = id #-}
 -- {-# RULES "lanToCoyoneda/coyonedaToLan=id" lanToCoyoneda . coyonedaToLan = id #-}
-
--- | @'Coyoneda' f@ is the left Kan lift of @f@ along the 'Identity' functor.
---
--- @
--- 'coyonedaToLift' . 'liftToCoyoneda' ≡ 'id'
--- 'liftToCoyoneda' . 'coyonedaToLift' ≡ 'id'
--- @
-coyonedaToLift :: Coyoneda f a -> Lift Identity f a
-coyonedaToLift (Coyoneda ba fb) = Lift $ \ f2iz -> ba <$> runIdentity (f2iz fb)
-
-liftToCoyoneda :: Functor f => Lift Identity f a -> Coyoneda f a
-liftToCoyoneda (Lift m) = Coyoneda id (m Identity)
-
--- {-# RULES "coyonedaToLift/liftToCoyoneda=id" coyonedaToLift . liftToCoyoneda = id #-}
--- {-# RULES "liftToCoyoneda/coyonedaToLift=id" liftToCoyoneda . coyonedaToLift = id #-}
 
 instance Functor (Coyoneda f) where
   fmap f (Coyoneda g v) = Coyoneda (f . g) v
