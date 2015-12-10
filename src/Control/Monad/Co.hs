@@ -83,7 +83,7 @@ runCo m = runIdentity . runCoT m . fmap (fmap Identity)
 
 -- |
 -- @
--- 'Co' w a ~ 'Data.Functor.KanLift.Rift' w 'Identity' a
+-- 'Co' w a ~ 'Data.Functor.Kan.Rift.Rift' w 'Identity' a
 -- @
 newtype CoT w m a = CoT { runCoT :: forall r. w (a -> m r) -> m r }
 
@@ -101,7 +101,7 @@ instance Comonad w => Applicative (CoT w m) where
   mf <*> ma = mf >>= \f -> fmap f ma
 
 instance Comonad w => Monad (CoT w m) where
-  return a = CoT (`extract` a)
+  return = pure
   CoT k >>= f = CoT (k . extend (\wa a -> runCoT (f a) wa))
 
 instance Comonad w => MonadTrans (CoT w) where

@@ -191,7 +191,9 @@ instance Bind m => Bind (Yoneda m) where
   Yoneda m >>- k = Yoneda (\f -> m id >>- \a -> runYoneda (k a) f)
 
 instance Monad m => Monad (Yoneda m) where
+#if __GLASGOW_HASKELL__ < 710
   return a = Yoneda (\f -> return (f a))
+#endif
   Yoneda m >>= k = Yoneda (\f -> m id >>= \a -> runYoneda (k a) f)
 
 instance MonadFix m => MonadFix (Yoneda m) where
