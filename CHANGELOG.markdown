@@ -1,3 +1,7 @@
+5
+-----
+* Move `Data.Functor.Kan.Rift` to `Data.Functor.Day.Curried`
+
 4.2.3
 -----
 * Builds clean on GHC 7.10
