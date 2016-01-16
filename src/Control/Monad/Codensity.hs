@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Codensity
--- Copyright   :  (C) 2008-2013 Edward Kmett
+-- Copyright   :  (C) 2008-2016 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>

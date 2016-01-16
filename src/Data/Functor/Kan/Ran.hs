@@ -5,7 +5,7 @@
 #endif
 -------------------------------------------------------------------------------------------
 -- |
--- Copyright 	: 2008-2013 Edward Kmett
+-- Copyright 	: 2008-2016 Edward Kmett
 -- License	: BSD
 --
 -- Maintainer	: Edward Kmett <ekmett@gmail.com>
