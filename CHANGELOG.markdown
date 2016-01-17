@@ -1,3 +1,7 @@
+5.0.1
+-----
+* Removed some redundant constraints
+
 5
 -----
 * Move `Data.Functor.Kan.Rift` to `Data.Functor.Day.Curried`
