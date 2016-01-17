@@ -128,22 +128,22 @@ lowerCoT1 m = runCoT m . fmap (const . return)
 lowerCo1 :: Functor w => Co w () -> w a -> a
 lowerCo1 m = runIdentity . runCoT m . fmap (const . return)
 
-posW :: (ComonadStore s w, Monad m) => CoT w m s
+posW :: ComonadStore s w => CoT w m s
 posW = liftCoT0 pos
 
-peekW :: (ComonadStore s w, Monad m) => s -> CoT w m ()
+peekW :: ComonadStore s w => s -> CoT w m ()
 peekW s = liftCoT1 (peek s)
 
-peeksW :: (ComonadStore s w, Monad m) => (s -> s) -> CoT w m ()
+peeksW :: ComonadStore s w => (s -> s) -> CoT w m ()
 peeksW f = liftCoT1 (peeks f)
 
-askW :: (ComonadEnv e w, Monad m) => CoT w m e
+askW :: ComonadEnv e w => CoT w m e
 askW = liftCoT0 (Env.ask)
 
-asksW :: (ComonadEnv e w, Monad m) => (e -> a) -> CoT w m a
+asksW :: ComonadEnv e w => (e -> a) -> CoT w m a
 asksW f = liftCoT0 (Env.asks f)
 
-traceW :: (ComonadTraced e w, Monad m) => e -> CoT w m ()
+traceW :: ComonadTraced e w => e -> CoT w m ()
 traceW e = liftCoT1 (Traced.trace e)
 
 liftCoT0M :: (Comonad w, Monad m) => (forall a. w a -> m s) -> CoT w m s
@@ -155,7 +155,7 @@ liftCoT1M f = CoT (($ ()) <=< f)
 diter :: Functor f => a -> (a -> f a) -> Density (Cofree f) a
 diter x y = liftDensity . coiter y $ x
 
-dctrlM :: (Comonad w, Monad m) => (forall a. w a -> m (w a)) -> CoT (Density w) m ()
+dctrlM :: Monad m => (forall a. w a -> m (w a)) -> CoT (Density w) m ()
 dctrlM k = liftCoT1M (\(Density w a) -> liftM w (k a))
 
 instance (Comonad w, MonadReader e m) => MonadReader e (CoT w m) where

@@ -86,12 +86,12 @@ applied (Day fb (Curried fg) bca) = fg (bca <$> fb)
 {-# INLINE applied #-}
 
 -- | This is the unit of the @Day f -| Curried f@ adjunction
-unapplied :: Functor f => g a -> Curried f (Day f g) a
+unapplied :: g a -> Curried f (Day f g) a
 unapplied ga = Curried $ \ fab -> Day fab ga id
 {-# INLINE unapplied #-}
 
 -- | The universal property of 'Curried'
-toCurried :: (Functor g, Functor k) => (forall x. Day g k x -> h x) -> k a -> Curried g h a
+toCurried :: (forall x. Day g k x -> h x) -> k a -> Curried g h a
 toCurried h ka = Curried $ \gar -> h (Day gar ka id)
 {-# INLINE toCurried #-}
 
