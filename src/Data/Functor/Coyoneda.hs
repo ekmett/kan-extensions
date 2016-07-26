@@ -28,7 +28,7 @@ module Data.Functor.Coyoneda
   , coyonedaToLan, lanToCoyoneda
   ) where
 
-import Control.Applicative
+import Control.Applicative as A
 import Control.Monad (MonadPlus(..), liftM)
 import Control.Monad.Fix
 import Control.Monad.Trans.Class
@@ -84,20 +84,51 @@ instance Functor (Coyoneda f) where
   {-# INLINE fmap #-}
 
 instance Apply f => Apply (Coyoneda f) where
-  m <.> n = liftCoyoneda $ lowerCoyoneda m <.> lowerCoyoneda n
+  Coyoneda mf m <.> Coyoneda nf n =
+    liftCoyoneda $ (\mres nres -> mf mres (nf nres)) <$> m <.> n
   {-# INLINE (<.>) #-}
+  Coyoneda _ m .> Coyoneda g n = Coyoneda g (m .> n)
+  {-# INLINE (.>) #-}
+  Coyoneda f m <. Coyoneda _ n = Coyoneda f (m <. n)
+  {-# INLINE (<.) #-}
 
 instance Applicative f => Applicative (Coyoneda f) where
   pure = liftCoyoneda . pure
   {-# INLINE pure #-}
-  m <*> n = liftCoyoneda $ lowerCoyoneda m <*> lowerCoyoneda n
+  Coyoneda mf m <*> Coyoneda nf n =
+    liftCoyoneda $ (\mres nres -> mf mres (nf nres)) <$> m <*> n
   {-# INLINE (<*>) #-}
+  Coyoneda _ m *> Coyoneda g n = Coyoneda g (m *> n)
+  {-# INLINE (*>) #-}
+  Coyoneda f m <* Coyoneda _ n = Coyoneda f (m <* n)
+  {-# INLINE (<*) #-}
 
 instance Alternative f => Alternative (Coyoneda f) where
   empty = liftCoyoneda empty
   {-# INLINE empty #-}
   m <|> n = liftCoyoneda $ lowerCoyoneda m <|> lowerCoyoneda n
   {-# INLINE (<|>) #-}
+  some = liftCoyoneda . A.some . lowerCoyoneda
+  {-# INLINE some #-}
+  many = liftCoyoneda . A.many . lowerCoyoneda
+  {-# INLINE many #-}
+
+{-
+-- These are slightly optimized versions of the *default*
+-- `some` and `many` definitions for `Coyoneda`. I don't
+-- know if it's worth the clutter to expose them.
+someDefault (Coyoneda vf vb) = liftCoyoneda some_v
+  where
+    many_v = some_v <|> pure []
+    some_v = (:) . vf <$> vb <*> many_v
+{-# INLINE someDefault #-}
+
+manyDefault (Coyoneda vf vb) = liftCoyoneda many_v
+  where
+    many_v = some_v <|> pure []
+    some_v = (:) . vf <$> vb <*> many_v
+{-# INLINE many #-}
+-}
 
 instance Alt f => Alt (Coyoneda f) where
   m <!> n = liftCoyoneda $ lowerCoyoneda m <!> lowerCoyoneda n
@@ -118,6 +149,8 @@ instance Monad m => Monad (Coyoneda m) where
 #endif
   Coyoneda f v >>= k = lift (v >>= lowerM . k . f)
   {-# INLINE (>>=) #-}
+  Coyoneda _ m >> Coyoneda g n = Coyoneda g (m >> n)
+  {-# INLINE (>>) #-}
 
 instance MonadTrans Coyoneda where
   lift = Coyoneda id
