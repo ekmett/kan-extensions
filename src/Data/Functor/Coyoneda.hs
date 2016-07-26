@@ -180,7 +180,7 @@ instance (Functor f, Show (f a)) => Show (Coyoneda f a) where
   {-# INLINE showsPrec #-}
 
 #ifdef __GLASGOW_HASKELL__
-instance (Functor f, Read (f a)) => Read (Coyoneda f a) where
+instance Read (f a) => Read (Coyoneda f a) where
   readPrec = parens $ prec 10 $ do
     Ident "liftCoyoneda" <- lexP
     liftCoyoneda <$> step readPrec
