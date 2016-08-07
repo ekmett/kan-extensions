@@ -38,6 +38,7 @@ module Data.Functor.Day
   ) where
 
 import Control.Applicative
+import Control.Comonad
 import Data.Distributive
 import Data.Functor.Identity
 import Data.Functor.Rep
@@ -90,6 +91,18 @@ instance (Representable f, Representable g) => Representable (Day f g) where
   type Rep (Day f g) = (Rep f, Rep g)
   tabulate f = Day (tabulate id) (tabulate id) (curry f)
   index (Day m n o) (x,y) = o (index m x) (index n y)
+
+instance (Comonad f, Comonad g) => Comonad (Day f g) where
+  extract (Day fb gc bca) = bca (extract fb) (extract gc)
+  duplicate (Day fb gc bca) = Day (duplicate fb) (duplicate gc) (\fb' gc' -> Day fb' gc' bca)
+
+instance (ComonadApply f, ComonadApply g) => ComonadApply (Day f g) where
+  Day fa fb u <@> Day gc gd v =
+    Day ((,) <$> fa <@> gc) ((,) <$> fb <@> gd)
+        (\(a,c) (b,d) -> u a b (v c d))
+
+instance ComonadTrans (Day f) where
+  lower (Day fb gc bca) = bca (extract fb) <$> gc
 
 -- | Day convolution provides a monoidal product. The associativity
 -- of this monoid is witnessed by 'assoc' and 'disassoc'.
