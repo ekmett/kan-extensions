@@ -39,6 +39,7 @@ module Data.Functor.Day
 
 import Control.Applicative
 import Control.Comonad
+import Control.Comonad.Trans.Class
 import Data.Distributive
 import Data.Functor.Identity
 import Data.Functor.Rep
@@ -101,7 +102,7 @@ instance (ComonadApply f, ComonadApply g) => ComonadApply (Day f g) where
     Day ((,) <$> fa <@> gc) ((,) <$> fb <@> gd)
         (\(a,c) (b,d) -> u a b (v c d))
 
-instance ComonadTrans (Day f) where
+instance Comonad f => ComonadTrans (Day f) where
   lower (Day fb gc bca) = bca (extract fb) <$> gc
 
 -- | Day convolution provides a monoidal product. The associativity
