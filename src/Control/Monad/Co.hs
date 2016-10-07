@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, NoArrows #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
