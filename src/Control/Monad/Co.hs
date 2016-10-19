@@ -64,6 +64,7 @@ import Control.Comonad.Env.Class as Env
 import Control.Comonad.Store.Class
 import Control.Comonad.Traced.Class as Traced
 import Control.Monad.Error.Class
+import qualified Control.Monad.Fail as Fail
 import Control.Monad.IO.Class
 import Control.Monad.Identity
 import Control.Monad.Reader.Class as Reader
@@ -72,9 +73,6 @@ import Control.Monad.Trans.Class
 import Control.Monad.Writer.Class as Writer
 import Data.Functor.Bind
 import Data.Functor.Extend
-#if MIN_VERSION_base(4,9,0)
-import qualified Control.Monad.Fail as Fail
-#endif
 
 type Co w = CoT w Identity
 
@@ -107,10 +105,8 @@ instance Comonad w => Monad (CoT w m) where
   return = pure
   CoT k >>= f = CoT (k . extend (\wa a -> runCoT (f a) wa))
 
-#if MIN_VERSION_base(4,9,0)
 instance (Comonad w, Fail.MonadFail m) => Fail.MonadFail (CoT w m) where
   fail msg = CoT $ \ _ -> Fail.fail msg
-#endif
 
 instance Comonad w => MonadTrans (CoT w) where
   lift m = CoT (extract . fmap (m >>=))

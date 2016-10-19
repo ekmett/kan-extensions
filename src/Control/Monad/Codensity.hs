@@ -32,6 +32,7 @@ module Control.Monad.Codensity
 
 import Control.Applicative
 import Control.Monad (MonadPlus(..))
+import qualified Control.Monad.Fail as Fail
 import Control.Monad.Free
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
@@ -44,9 +45,6 @@ import Data.Functor.Plus
 import Data.Functor.Rep
 #if __GLASGOW_HASKELL__ >= 708
 import Data.Typeable
-#endif
-#if MIN_VERSION_base(4,9,0)
-import qualified Control.Monad.Fail as Fail
 #endif
 
 -- |
@@ -87,11 +85,9 @@ instance Monad (Codensity f) where
   m >>= k = Codensity (\c -> runCodensity m (\a -> runCodensity (k a) c))
   {-# INLINE (>>=) #-}
 
-#if MIN_VERSION_base(4,9,0)
 instance (Fail.MonadFail f) => Fail.MonadFail (Codensity f) where
   fail msg = Codensity $ \ _ -> Fail.fail msg
   {-# INLINE fail #-}
-#endif
 
 instance MonadIO m => MonadIO (Codensity m) where
   liftIO = lift . liftIO
