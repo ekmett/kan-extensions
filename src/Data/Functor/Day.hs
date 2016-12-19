@@ -86,7 +86,11 @@ instance (Applicative f, Applicative g) => Applicative (Day f g) where
         (\(a,c) (b,d) -> u a b (v c d))
 
 instance (Representable f, Representable g) => Distributive (Day f g) where
-  distribute f = Day (tabulate id) (tabulate id) $ \x y -> fmap (\(Day m n o) -> o (index m x) (index n y)) f
+  distribute f = Day (tabulate id) (tabulate id) $ \x y ->
+    fmap (\(Day m n o) -> o (index m x) (index n y)) f
+
+  collect g f = Day (tabulate id) (tabulate id) $ \x y ->
+    fmap (\q -> case g q of Day m n o -> o (index m x) (index n y)) f
 
 instance (Representable f, Representable g) => Representable (Day f g) where
   type Rep (Day f g) = (Rep f, Rep g)
