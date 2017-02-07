@@ -1,3 +1,10 @@
+next major
+----------
+
+* Add `Eq1`, `Ord1`, `Read1` and `Show1` instances for `Coyoneda` and `Yoneda`.
+* Change contexts of `Eq` and `Ord` instances of `Coyoneda` and `Yoneda` to require
+  lifted class instances, e.g. `Eq1 f, Eq a`.
+
 5.0.1
 -----
 * Removed some redundant constraints
