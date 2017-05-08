@@ -1,3 +1,7 @@
+5.0.2
+-----
+* Added `hoistCoyoneda`
+
 5.0.1
 -----
 * Removed some redundant constraints

@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -23,7 +24,7 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Coyoneda
   ( Coyoneda(..)
-  , liftCoyoneda, lowerCoyoneda, lowerM
+  , liftCoyoneda, lowerCoyoneda, lowerM, hoistCoyoneda
   -- * as a Left Kan extension
   , coyonedaToLan, lanToCoyoneda
   ) where
@@ -280,3 +281,8 @@ lowerCoyoneda (Coyoneda f m) = fmap f m
 lowerM :: Monad f => Coyoneda f a -> f a
 lowerM (Coyoneda f m) = liftM f m
 {-# INLINE lowerM #-}
+
+-- | Lift a natural transformation from @f@ to @g@ to a natural transformation
+-- from @Coyoneda f@ to @Coyoneda g@.
+hoistCoyoneda :: (forall a. f a -> g a) -> (Coyoneda f b -> Coyoneda g b)
+hoistCoyoneda f (Coyoneda g x) = Coyoneda g (f x)
