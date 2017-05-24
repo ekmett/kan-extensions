@@ -145,13 +145,19 @@ instance Bind m => Bind (Coyoneda m) where
 
 instance Monad m => Monad (Coyoneda m) where
 #if __GLASGOW_HASKELL__ < 710
+  -- pre-AMP
   return = Coyoneda id . return
   {-# INLINE return #-}
+
+  Coyoneda _ m >> Coyoneda g n = Coyoneda g (m >> n)
+  {-# INLINE (>>) #-}
+#else
+  -- post-AMP
+  (>>) = (*>)
+  {-# INLINE (>>) #-}
 #endif
   Coyoneda f v >>= k = lift (v >>= lowerM . k . f)
   {-# INLINE (>>=) #-}
-  Coyoneda _ m >> Coyoneda g n = Coyoneda g (m >> n)
-  {-# INLINE (>>) #-}
 
 instance MonadTrans Coyoneda where
   lift = Coyoneda id
