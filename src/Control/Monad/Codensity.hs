@@ -57,7 +57,7 @@ import Data.Typeable
 -- See \"Asymptotic Improvement of Computations over Free Monads\" by Janis
 -- Voigtländer for more information about this type.
 --
--- <http://www.iai.uni-bonn.de/~jv/mpc08.pdf>
+-- <http://www.janis-voigtlaender.eu/papers/AsymptoticImprovementOfComputationsOverFreeMonads.pdf>
 newtype Codensity m a = Codensity
   { runCodensity :: forall b. (a -> m b) -> m b
   }
