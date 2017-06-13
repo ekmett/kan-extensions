@@ -48,8 +48,6 @@ import Data.Typeable
 #endif
 
 -- | The Day convolution of two covariant functors.
---
--- @Day f g a -> h a@ is isomorphic to @f a -> Rift g h a@
 data Day f g a = forall b c. Day (f b) (g c) (b -> c -> a)
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
   deriving Typeable
