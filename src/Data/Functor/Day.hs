@@ -35,17 +35,22 @@ module Data.Functor.Day
   , intro1, intro2
   , elim1, elim2
   , trans1, trans2
+  , cayley, dayley
   ) where
 
 import Control.Applicative
+import Control.Category
 import Control.Comonad
 import Control.Comonad.Trans.Class
 import Data.Distributive
+import Data.Profunctor.Cayley (Cayley(..))
+import Data.Profunctor.Composition (Procompose(..))
 import Data.Functor.Identity
 import Data.Functor.Rep
 #ifdef __GLASGOW_HASKELL__
 import Data.Typeable
 #endif
+import Prelude hiding (id,(.))
 
 -- | The Day convolution of two covariant functors.
 data Day f g a = forall b c. Day (f b) (g c) (b -> c -> a)
@@ -202,3 +207,10 @@ trans1 fg (Day fb hc bca) = Day (fg fb) hc bca
 -- @
 trans2 :: (forall x. g x -> h x) -> Day f g a -> Day f h a
 trans2 gh (Day fb gc bca) = Day fb (gh gc) bca
+
+cayley :: Procompose (Cayley f p) (Cayley g q) a b -> Cayley (Day f g) (Procompose p q) a b
+cayley (Procompose (Cayley p) (Cayley q)) = Cayley $ Day p q Procompose
+
+-- | Proposition 4.1 from Pastro and Street
+dayley :: Category p => Procompose (Cayley f p) (Cayley g p) a b -> Cayley (Day f g) p a b
+dayley (Procompose (Cayley p) (Cayley q)) = Cayley $ Day p q (.)
