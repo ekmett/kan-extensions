@@ -1,3 +1,7 @@
+5.0.3
+-----
+* Made `Density`, `Codensity`, `Kan` and `Lan` polykinded.
+
 5.0.2
 -----
 * Added `hoistCoyoneda`

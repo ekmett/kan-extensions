@@ -1,5 +1,8 @@
 {-# LANGUAGE Rank2Types, GADTs #-}
 {-# LANGUAGE CPP #-}
+#if __GLASGOW_HASKELL__ >= 706
+{-# LANGUAGE PolyKinds #-}
+#endif
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
