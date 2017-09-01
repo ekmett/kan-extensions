@@ -32,7 +32,7 @@
 -- which is a 'Monad' in @Hask^op@ to a 'Monad' in 'Hask'.
 --
 -- For any @r@, the 'Contravariant' functor / presheaf @(-> r)@ :: Hask^op -> Hask is adjoint to the \"same\"
--- 'Contravariant' functor @(-> r) :: Hask -> Hask^op@. So we can sandwhich a
+-- 'Contravariant' functor @(-> r) :: Hask -> Hask^op@. So we can sandwich a
 -- Monad in Hask^op in the middle to obtain @w (a -> r-) -> r+@, and then take a coend over
 -- @r@ to obtain @forall r. w (a -> r) -> r@. This gives rise to 'Co'. If we observe that
 -- we didn't care what the choices we made for @r@ were to finish this construction, we can
