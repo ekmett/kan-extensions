@@ -41,7 +41,7 @@ import Data.Functor.Rep
 -- from the universal property.
 --
 -- Given a 'Functor' @h : C -> D@ and a 'Functor' @g : C -> C'@, we want to extend @h@ /back/ along @g@
--- to give @Ran g h : C' -> C@, such that the natural transformation @'gran' :: Ran g h (g a) -> h a@ exists.
+-- to give @Ran g h : C' -> D@, such that the natural transformation @'gran' :: Ran g h (g a) -> h a@ exists.
 --
 -- In some sense this is trying to approximate the inverse of @g@ by using one of
 -- its adjoints, because if the adjoint and the inverse both exist, they match!
@@ -55,7 +55,7 @@ import Data.Functor.Rep
 --
 -- The Right Kan extension is unique (up to isomorphism) by taking this as its universal property.
 --
--- That is to say given any @K : C' -> C@ such that we have a natural transformation from @k.g@ to @h@
+-- That is to say given any @K : C' -> D@ such that we have a natural transformation from @k.g@ to @h@
 -- @(forall x. k (g x) -> h x)@ there exists a canonical natural transformation from @k@ to @Ran g h@.
 -- @(forall x. k x -> Ran g h x)@.
 --
