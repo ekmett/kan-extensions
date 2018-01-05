@@ -8,6 +8,7 @@
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
+#include "kan-extensions-common.h"
 
 -----------------------------------------------------------------------------
 -- |
@@ -44,9 +45,9 @@ import Control.Comonad
 import Control.Comonad.Trans.Class
 import Data.Distributive
 import Data.Foldable
-import Data.Function (on)
 import Data.Functor.Adjunction
 import Data.Functor.Bind
+import Data.Functor.Classes
 import Data.Functor.Extend
 import Data.Functor.Identity
 import Data.Functor.Kan.Ran
@@ -138,24 +139,67 @@ instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
   unit = liftYoneda . fmap liftYoneda . unit
   counit (Yoneda m) = counit (m lowerYoneda)
 
--- instance Show1 f => Show1 (Yoneda f) where
+instance Show1 f => Show1 (Yoneda f) where
+#if LIFTED_FUNCTOR_CLASSES
+  liftShowsPrec sp sl d (Yoneda f) =
+    showsUnaryWith (liftShowsPrec sp sl) "liftYoneda" d (f id)
+#else
+  showsPrec1 d (Yoneda f) = showParen (d > 10) $
+    showString "liftYoneda " . showsPrec1 11 (f id)
+#endif
+
+instance (Read1 f, Functor f) => Read1 (Yoneda f) where
+#if LIFTED_FUNCTOR_CLASSES
+  liftReadsPrec rp rl = readsData $
+    readsUnaryWith (liftReadsPrec rp rl) "liftYoneda" liftYoneda
+#else
+  readsPrec1 d = readParen (d > 10) $ \r' ->
+    [ (liftYoneda f, t)
+    | ("liftYoneda", s) <- lex r'
+    , (f, t) <- readsPrec1 11 s
+    ]
+#endif
+
 instance Show (f a) => Show (Yoneda f a) where
   showsPrec d (Yoneda f) = showParen (d > 10) $
     showString "liftYoneda " . showsPrec 11 (f id)
 
--- instance Read1 f => Read1 (Yoneda f) where
-#ifdef __GLASGOW_HASKELL__
 instance (Functor f, Read (f a)) => Read (Yoneda f a) where
+#ifdef __GLASGOW_HASKELL__
   readPrec = parens $ prec 10 $ do
      Ident "liftYoneda" <- lexP
      liftYoneda <$> step readPrec
+#else
+  readsPrec d = readParen (d > 10) $ \r' ->
+    [ (liftYoneda f, t)
+    | ("liftYoneda", s) <- lex r'
+    , (f, t) <- readsPrec 11 s
+    ]
 #endif
 
-instance Eq (f a) => Eq (Yoneda f a) where
-  (==) = (==) `on` lowerYoneda
+infixl 0 `on1`
+on1 :: (g a -> g b -> c) -> (forall x. f x -> g x) -> f a -> f b -> c
+(.*.) `on1` f = \x y -> f x .*. f y
 
-instance Ord (f a) => Ord (Yoneda f a) where
-  compare = compare `on` lowerYoneda
+instance Eq1 f => Eq1 (Yoneda f) where
+#if LIFTED_FUNCTOR_CLASSES
+  liftEq eq = liftEq eq `on1` lowerYoneda
+#else
+  eq1 = eq1 `on1` lowerYoneda
+#endif
+
+instance Ord1 f => Ord1 (Yoneda f) where
+#if LIFTED_FUNCTOR_CLASSES
+  liftCompare cmp = liftCompare cmp `on1` lowerYoneda
+#else
+  compare1 = compare1 `on1` lowerYoneda
+#endif
+
+instance (Eq1 f, Eq a) => Eq (Yoneda f a) where
+  (==) = eq1
+
+instance (Ord1 f, Ord a) => Ord (Yoneda f a) where
+  compare = compare1
 
 maxF :: (Functor f, Ord (f a)) => Yoneda f a -> Yoneda f a -> Yoneda f a
 Yoneda f `maxF` Yoneda g = liftYoneda $ f id `max` g id

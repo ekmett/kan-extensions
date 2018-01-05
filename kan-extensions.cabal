@@ -21,6 +21,7 @@ extra-source-files:
   .vim.custom
   CHANGELOG.markdown
   README.markdown
+  include/kan-extensions-common.h
 
 source-repository head
   type: git
@@ -28,6 +29,8 @@ source-repository head
 
 library
   hs-source-dirs: src
+  include-dirs: include
+  includes: kan-extensions-common.h
 
   other-extensions:
     CPP
@@ -48,12 +51,13 @@ library
     contravariant >= 1       && < 2,
     distributive  >= 0.2.2   && < 1,
     fail          >= 4.9     && < 5,
-    free          >= 4       && < 5,
+    free          >= 4       && < 6,
     mtl           >= 2.0.1   && < 2.3,
     profunctors   >= 5       && < 6,
     semigroupoids >= 4       && < 6,
     tagged        >= 0.7.2   && < 1,
-    transformers  >= 0.2     && < 0.6
+    transformers  >= 0.2     && < 0.6,
+    transformers-compat >= 0.3 && <0.6
 
   exposed-modules:
     Control.Comonad.Density
