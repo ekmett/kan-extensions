@@ -1,5 +1,5 @@
-5.0.3
------
+5.1
+---
 * Make `Density`, `Codensity`, `Kan` and `Lan` polykinded.
 * Add `Eq1`, `Ord1`, `Read1` and `Show1` instances for `Coyoneda` and `Yoneda`.
 * Change contexts of `Eq` and `Ord` instances of `Coyoneda` and `Yoneda`
