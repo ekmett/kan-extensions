@@ -11,8 +11,15 @@ homepage:      http://github.com/ekmett/kan-extensions/
 bug-reports:   http://github.com/ekmett/kan-extensions/issues
 copyright:     Copyright (C) 2008-2016 Edward A. Kmett
 synopsis:      Kan extensions, Kan lifts, various forms of the Yoneda lemma, and (co)density (co)monads
-description:   Kan extensions, Kan lifts, various forms of the Yoneda lemma, and (co)density (co)monads
+description:   Kan extensions, Kan lifts, various forms of the Yoneda lemma, and (co)density (co)monads.
 build-type:    Simple
+tested-with:   GHC == 7.4.2
+             , GHC == 7.6.3
+             , GHC == 7.8.4
+             , GHC == 7.10.3
+             , GHC == 8.0.2
+             , GHC == 8.2.2
+             , GHC == 8.4.1
 
 extra-source-files:
   .travis.yml
