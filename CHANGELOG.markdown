@@ -1,10 +1,11 @@
-5.1
----
+5.1 [2018.01.28]
+----------------
 * Make `Density`, `Codensity`, `Kan` and `Lan` polykinded.
 * Add `Eq1`, `Ord1`, `Read1` and `Show1` instances for `Coyoneda` and `Yoneda`.
 * Change contexts of `Eq` and `Ord` instances of `Coyoneda` and `Yoneda`
   (and the `Show` instance for `Coyoneda`) to require lifted class instances,
   e.g. `Eq1 f, Eq a`.
+* Allow `free-5`.
 
 5.0.2
 -----
