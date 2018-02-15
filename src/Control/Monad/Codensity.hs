@@ -30,6 +30,7 @@ module Control.Monad.Codensity
   , codensityToAdjunction, adjunctionToCodensity
   , codensityToRan, ranToCodensity
   , codensityToComposedRep, composedRepToCodensity
+  , wrapCodensity
   , improve
   ) where
 
@@ -241,3 +242,15 @@ instance MonadReader r m => MonadReader r (Codensity m) where
 improve :: Functor f => (forall m. MonadFree f m => m a) -> Free f a
 improve m = lowerCodensity m
 {-# INLINE improve #-}
+
+
+-- | Wrap the remainder of the 'Codensity' action using the given
+-- function.
+--
+-- This function can be used to register cleanup actions that will be
+-- executed at the end.  Example:
+--
+-- > wrapCodensity (`finally` putStrLn "Done.")
+
+wrapCodensity :: (forall a. m a -> m a) -> Codensity m ()
+wrapCodensity f = Codensity (\k -> f (k ()))
