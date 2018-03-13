@@ -6,6 +6,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 #if __GLASGOW_HASKELL__ < 806
 {-# LANGUAGE TypeInType #-}
 #endif
@@ -47,6 +49,7 @@ import Data.Functor.Apply
 import Data.Functor.Kan.Ran
 import Data.Functor.Plus
 import Data.Functor.Rep
+import Data.Type.Equality (type (~~))
 import GHC.Exts (TYPE)
 
 -- |
@@ -87,11 +90,22 @@ instance Monad (Codensity (f :: k -> TYPE rep)) where
   m >>= k = Codensity (\c -> runCodensity m (\a -> runCodensity (k a) c))
   {-# INLINE (>>=) #-}
 
-instance Fail.MonadFail f => Fail.MonadFail (Codensity f) where
+-- Writing instances like
+-- instance MonadFail f => MonadFail (Codensity f)
+-- leads to some hidden flexible instances. Haddock will show things like
+--
+-- MonadFail f => MonadFail (Codensity * LiftedRep f)
+--
+-- Since FlexibleInstances are bad for inference, we avoid them when
+-- we can by carefully pushing kind constraints to the left.
+
+instance (f ~~ f', Fail.MonadFail f')
+  => Fail.MonadFail (Codensity (f :: k -> TYPE rep)) where
   fail msg = Codensity $ \ _ -> Fail.fail msg
   {-# INLINE fail #-}
 
-instance MonadIO m => MonadIO (Codensity m) where
+instance (m ~~ m', MonadIO m')
+  => MonadIO (Codensity (m :: k -> TYPE rep)) where
   liftIO = lift . liftIO
   {-# INLINE liftIO #-}
 
@@ -99,11 +113,12 @@ instance MonadTrans Codensity where
   lift m = Codensity (m >>=)
   {-# INLINE lift #-}
 
-instance Alt v => Alt (Codensity v) where
+instance (v ~~ v', Alt v')
+  => Alt (Codensity (v :: k -> TYPE rep)) where
   Codensity m <!> Codensity n = Codensity (\k -> m k <!> n k)
   {-# INLINE (<!>) #-}
 
-instance Plus v => Plus (Codensity v) where
+instance (v ~~ v', Plus v') => Plus (Codensity (v :: k -> TYPE rep)) where
   zero = Codensity (const zero)
   {-# INLINE zero #-}
 
@@ -117,13 +132,15 @@ instance Plus v => MonadPlus (Codensity v) where
   mplus = (<!>)
 -}
 
-instance Alternative v => Alternative (Codensity v) where
+instance (v ~~ v', Alternative v')
+  => Alternative (Codensity (v :: k -> TYPE rep)) where
   empty = Codensity (\_ -> empty)
   {-# INLINE empty #-}
   Codensity m <|> Codensity n = Codensity (\k -> m k <|> n k)
   {-# INLINE (<|>) #-}
 
-instance Alternative v => MonadPlus (Codensity v)
+instance (v ~~ v', Alternative v')
+   => MonadPlus (Codensity (v :: k -> TYPE rep))
 
 -- |
 -- This serves as the *left*-inverse (retraction) of 'lift'.
@@ -199,17 +216,20 @@ ranToCodensity :: Ran g g a -> Codensity g a
 ranToCodensity (Ran m) = Codensity m
 {-# INLINE ranToCodensity #-}
 
-instance (Functor f, MonadFree f m) => MonadFree f (Codensity m) where
+instance (m ~~ m', Functor f, MonadFree f m')
+  => MonadFree f (Codensity (m :: k -> TYPE rep)) where
   wrap t = Codensity (\h -> wrap (fmap (\p -> runCodensity p h) t))
   {-# INLINE wrap #-}
 
-instance MonadReader r m => MonadState r (Codensity m) where
+instance (m ~~ m', MonadReader r m')
+  => MonadState r (Codensity (m :: k -> TYPE rep)) where
   get = Codensity (ask >>=)
   {-# INLINE get #-}
   put s = Codensity (\k -> local (const s) (k ()))
   {-# INLINE put #-}
 
-instance MonadReader r m => MonadReader r (Codensity m) where
+instance (m ~~ m', MonadReader r m')
+  => MonadReader r (Codensity (m :: k -> TYPE rep)) where
   ask = Codensity (ask >>=)
   {-# INLINE ask #-}
   local f m = Codensity $ \c -> ask >>= \r -> local f . runCodensity m $ local (const r) . c
