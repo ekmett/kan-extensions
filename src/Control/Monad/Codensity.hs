@@ -1,16 +1,20 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 #if __GLASGOW_HASKELL__ >= 706
 {-# LANGUAGE PolyKinds #-}
 #endif
 #if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
-#if __GLASGOW_HASKELL__ >= 708
+#if (__GLASGOW_HASKELL__ >= 708) && (__GLASGOW_HASKELL__ < 802)
 {-# LANGUAGE DeriveDataTypeable #-}
+#endif
+#if __GLASGOW_HASKELL__ >= 802
+{-# LANGUAGE TypeInType #-}
 #endif
 
 -----------------------------------------------------------------------------
@@ -47,8 +51,11 @@ import Data.Functor.Apply
 import Data.Functor.Kan.Ran
 import Data.Functor.Plus
 import Data.Functor.Rep
-#if __GLASGOW_HASKELL__ >= 708
+#if (__GLASGOW_HASKELL__ >= 708) && (__GLASGOW_HASKELL__ < 800)
 import Data.Typeable
+#endif
+#if __GLASGOW_HASKELL__ >= 802
+import GHC.Exts (TYPE)
 #endif
 
 -- |
@@ -62,34 +69,57 @@ import Data.Typeable
 -- Voigtländer for more information about this type.
 --
 -- <https://www.janis-voigtlaender.eu/papers/AsymptoticImprovementOfComputationsOverFreeMonads.pdf>
+#if __GLASGOW_HASKELL__ >= 802
+newtype Codensity (m :: k -> TYPE rep) a = Codensity
+-- Note: we *could* generalize @a@ to @TYPE repa@, but the 'Functor'
+-- instance wouldn't carry that, so it doesn't really seem worth
+-- the complication.
+#else
 newtype Codensity m a = Codensity
+#endif
   { runCodensity :: forall b. (a -> m b) -> m b
   }
-#if __GLASGOW_HASKELL__ >= 708
+#if (__GLASGOW_HASKELL__ >= 708) && (__GLASGOW_HASKELL__ < 800)
     deriving Typeable
 #endif
 
+#if __GLASGOW_HASKELL__ >= 802
+instance Functor (Codensity (k :: j -> TYPE rep)) where
+#else
 instance Functor (Codensity k) where
-  fmap f (Codensity m) = Codensity (\k -> m (k . f))
+#endif
+  fmap f (Codensity m) = Codensity (\k -> m (\x -> k (f x)))
   {-# INLINE fmap #-}
 
+#if __GLASGOW_HASKELL__ >= 802
+instance Apply (Codensity (f :: k -> TYPE rep)) where
+#else
 instance Apply (Codensity f) where
+#endif
   (<.>) = (<*>)
   {-# INLINE (<.>) #-}
 
+#if __GLASGOW_HASKELL__ >= 802
+instance Applicative (Codensity (f :: k -> TYPE rep)) where
+#else
 instance Applicative (Codensity f) where
+#endif
   pure x = Codensity (\k -> k x)
   {-# INLINE pure #-}
-  Codensity f <*> Codensity g = Codensity (\bfr -> f (\ab -> g (bfr . ab)))
+  Codensity f <*> Codensity g = Codensity (\bfr -> f (\ab -> g (\x -> bfr (ab x))))
   {-# INLINE (<*>) #-}
 
+#if __GLASGOW_HASKELL__ >= 802
+instance Monad (Codensity (f :: k -> TYPE rep)) where
+#else
 instance Monad (Codensity f) where
+#endif
   return = pure
   {-# INLINE return #-}
   m >>= k = Codensity (\c -> runCodensity m (\a -> runCodensity (k a) c))
   {-# INLINE (>>=) #-}
 
-instance (Fail.MonadFail f) => Fail.MonadFail (Codensity f) where
+instance Fail.MonadFail f => Fail.MonadFail (Codensity f) where
   fail msg = Codensity $ \ _ -> Fail.fail msg
   {-# INLINE fail #-}
 
@@ -251,6 +281,5 @@ improve m = lowerCodensity m
 -- executed at the end.  Example:
 --
 -- > wrapCodensity (`finally` putStrLn "Done.")
-
 wrapCodensity :: (forall a. m a -> m a) -> Codensity m ()
 wrapCodensity f = Codensity (\k -> f (k ()))
