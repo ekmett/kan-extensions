@@ -262,20 +262,24 @@ instance Read (f a) => Read (Coyoneda f a) where
   {-# INLINE readsPrec #-}
 #endif
 
-instance (Functor f, Eq1 f) => Eq1 (Coyoneda f) where
 #if LIFTED_FUNCTOR_CLASSES
-  liftEq eq = \x y -> liftEq eq (lowerCoyoneda x) (lowerCoyoneda y)
+instance Eq1 f => Eq1 (Coyoneda f) where
+  liftEq eq (Coyoneda f xs) (Coyoneda g ys) =
+    liftEq (\x y -> eq (f x) (g y)) xs ys
   {-# INLINE liftEq #-}
 #else
+instance (Functor f, Eq1 f) => Eq1 (Coyoneda f) where
   eq1 = eq1 `on` lowerCoyoneda
   {-# INLINE eq1 #-}
 #endif
 
-instance (Functor f, Ord1 f) => Ord1 (Coyoneda f) where
 #if LIFTED_FUNCTOR_CLASSES
-  liftCompare cmp = \x y -> liftCompare cmp (lowerCoyoneda x) (lowerCoyoneda y)
+instance Ord1 f => Ord1 (Coyoneda f) where
+  liftCompare cmp (Coyoneda f xs) (Coyoneda g ys) =
+    liftCompare (\x y -> cmp (f x) (g y)) xs ys
   {-# INLINE liftCompare #-}
 #else
+instance (Functor f, Ord1 f) => Ord1 (Coyoneda f) where
   compare1 = compare1 `on` lowerCoyoneda
   {-# INLINE compare1 #-}
 #endif
@@ -289,9 +293,9 @@ instance (Functor f, Ord1 f, Ord a) => Ord (Coyoneda f a) where
   {-# INLINE compare #-}
 
 instance Adjunction f g => Adjunction (Coyoneda f) (Coyoneda g) where
-  unit = liftCoyoneda . fmap liftCoyoneda . unit
+  unit = liftCoyoneda . leftAdjunct liftCoyoneda
   {-# INLINE unit #-}
-  counit = counit . fmap lowerCoyoneda . lowerCoyoneda
+  counit = rightAdjunct lowerCoyoneda . lowerCoyoneda
   {-# INLINE counit #-}
 
 -- | Yoneda \"expansion\"
