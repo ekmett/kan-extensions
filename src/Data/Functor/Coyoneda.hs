@@ -77,9 +77,11 @@ data Coyoneda f a where
 -- @
 coyonedaToLan :: Coyoneda f a -> Lan Identity f a
 coyonedaToLan (Coyoneda ba fb) = Lan (ba . runIdentity) fb
+{-# INLINE coyonedaToLan #-}
 
 lanToCoyoneda :: Lan Identity f a -> Coyoneda f a
 lanToCoyoneda (Lan iba fb) = Coyoneda (iba . Identity) fb
+{-# INLINE lanToCoyoneda #-}
 
 -- {-# RULES "coyonedaToLan/lanToCoyoneda=id" coyonedaToLan . lanToCoyoneda = id #-}
 -- {-# RULES "lanToCoyoneda/coyonedaToLan=id" lanToCoyoneda . coyonedaToLan = id #-}
@@ -349,3 +351,4 @@ lowerM (Coyoneda f m) = liftM f m
 -- from @Coyoneda f@ to @Coyoneda g@.
 hoistCoyoneda :: (forall a. f a -> g a) -> (Coyoneda f b -> Coyoneda g b)
 hoistCoyoneda f (Coyoneda g x) = Coyoneda g (f x)
+{-# INLINE hoistCoyoneda #-}
