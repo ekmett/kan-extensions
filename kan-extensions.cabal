@@ -58,7 +58,6 @@ library
     contravariant       >= 1       && < 2,
     distributive        >= 0.2.2   && < 1,
     invariant           >= 0.1     && < 1,
-    fail                >= 4.9     && < 5,
     free                >= 4       && < 6,
     mtl                 >= 2.0.1   && < 2.3,
     profunctors         >= 5       && < 6,
@@ -87,3 +86,5 @@ library
   -- See https://ghc.haskell.org/trac/ghc/wiki/Migration/8.0#base-4.9.0.0
   if impl(ghc >= 8.0)
     ghc-options: -Wcompat -Wnoncanonical-monad-instances -Wnoncanonical-monadfail-instances
+  else
+    build-depends: fail >= 4.9 && < 5
