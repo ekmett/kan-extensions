@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Allow building with `containers-0.6`.
+
 5.1 [2018.01.28]
 ----------------
 * Make `Density`, `Codensity`, `Kan` and `Lan` polykinded.

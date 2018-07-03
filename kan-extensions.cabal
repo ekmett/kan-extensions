@@ -20,6 +20,7 @@ tested-with:   GHC == 7.4.2
              , GHC == 8.0.2
              , GHC == 8.2.2
              , GHC == 8.4.3
+             , GHC == 8.6.1
 
 extra-source-files:
   .travis.yml
@@ -54,7 +55,7 @@ library
     array               >= 0.3.0.2 && < 0.6,
     base                >= 4.4     && < 5,
     comonad             >= 4       && < 6,
-    containers          >= 0.4     && < 0.6,
+    containers          >= 0.4     && < 0.7,
     contravariant       >= 1       && < 2,
     distributive        >= 0.2.2   && < 1,
     invariant           >= 0.1     && < 1,
