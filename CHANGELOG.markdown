@@ -1,5 +1,12 @@
 next [????.??.??]
 -----------------
+* Make `Codensity` levity polymorphic.
+* Add the `Data.Functor.Invariant.Day` module, which combines the covariant and
+  contravariant versions of `Day`. As a result, `kan-extensions` now depends on
+  the `invariant` package.
+* Add a `wrapCodensity` function.
+* More efficient `Eq1`, `Ord1`, and `Adjunction` instances for `Coyoneda`.
+* Add `INLINE` pragmas on more functions.
 * Allow building with `containers-0.6`.
 
 5.1 [2018.01.28]
