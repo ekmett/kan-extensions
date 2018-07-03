@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.2 [2018.07.03]
+----------------
 * Make `Codensity` levity polymorphic.
 * Add the `Data.Functor.Invariant.Day` module, which combines the covariant and
   contravariant versions of `Day`. As a result, `kan-extensions` now depends on
