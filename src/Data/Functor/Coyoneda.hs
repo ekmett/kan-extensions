@@ -20,6 +20,7 @@
 -- Stability   :  provisional
 -- Portability :  GADTs, MPTCs, fundeps
 --
+-- @'Coyoneda' f@ is the "free functor" over @f@.
 -- The co-Yoneda lemma for a covariant 'Functor' @f@ states that @'Coyoneda' f@
 -- is naturally isomorphic to @f@.
 ----------------------------------------------------------------------------
