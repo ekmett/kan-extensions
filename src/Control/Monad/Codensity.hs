@@ -250,11 +250,16 @@ instance (Functor f, MonadFree f m) => MonadFree f (Codensity m) where
   wrap t = Codensity (\h -> wrap (fmap (\p -> runCodensity p h) t))
   {-# INLINE wrap #-}
 
-instance MonadError e (ContT e (Codensity m)) where
+instance {-# OVERLAPPING #-} MonadError e (ContT e (Codensity m)) where
   throwError e = ContT (const (pure e))
   catchError c recover = ContT $ \successHandler -> Codensity $ \errorHandler ->
     runCodensity (runContT c successHandler)
       $ \e -> runCodensity (runContT (recover e) successHandler) errorHandler
+
+instance MonadError e m => MonadError e (Codensity m)  where
+  throwError e = Codensity (const (throwError e))
+  catchError c recover =
+    Codensity $ \k -> catchError (runCodensity c k) $ \e -> runCodensity (recover e) k
 
 instance MonadReader r m => MonadState r (Codensity m) where
   get = Codensity (ask >>=)
