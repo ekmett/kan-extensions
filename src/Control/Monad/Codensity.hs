@@ -42,10 +42,12 @@ import Control.Applicative
 import Control.Monad (MonadPlus(..))
 import qualified Control.Monad.Fail as Fail
 import Control.Monad.Free
+import Control.Monad.Error.Class
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import Control.Monad.Trans.Class
+import Control.Monad.Trans.Cont
 import Data.Functor.Adjunction
 import Data.Functor.Apply
 import Data.Functor.Kan.Ran
@@ -247,6 +249,12 @@ ranToCodensity (Ran m) = Codensity m
 instance (Functor f, MonadFree f m) => MonadFree f (Codensity m) where
   wrap t = Codensity (\h -> wrap (fmap (\p -> runCodensity p h) t))
   {-# INLINE wrap #-}
+
+instance MonadError e (ContT e (Codensity m)) where
+  throwError e = ContT (const (pure e))
+  catchError c recover = ContT $ \successHandler -> Codensity $ \errorHandler ->
+    runCodensity (runContT c successHandler)
+      $ \e -> runCodensity (runContT (recover e) successHandler) errorHandler
 
 instance MonadReader r m => MonadState r (Codensity m) where
   get = Codensity (ask >>=)
