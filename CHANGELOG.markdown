@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Allow building with GHC 9.0.
+
 5.2 [2018.07.03]
 ----------------
 * Make `Codensity` levity polymorphic.

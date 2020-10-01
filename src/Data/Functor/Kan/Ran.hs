@@ -105,7 +105,7 @@ toRan s t = Ran (s . flip fmap t)
 -- 'fromRan' . 'toRan' ≡ 'id'
 -- @
 fromRan :: (forall a. k a -> Ran g h a) -> k (g b) -> h b
-fromRan s = flip runRan id . s
+fromRan s kgb = runRan (s kgb) id
 {-# INLINE fromRan #-}
 
 -- |
