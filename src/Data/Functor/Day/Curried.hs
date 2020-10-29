@@ -27,6 +27,7 @@ module Data.Functor.Day.Curried
   , liftCurried, lowerCurried, rap
   ) where
 
+import qualified Control.Applicative as App
 import Data.Functor.Adjunction
 import Data.Functor.Day
 import Data.Functor.Identity
@@ -45,11 +46,13 @@ instance (Functor g, g ~ h) => Apply (Curried g h) where
   liftF2 f (Curried g) (Curried ma) = Curried (ma . g . fmap (\p q -> p . f q))
   {-# INLINE liftF2 #-}
 
-instance (Functor g, g ~ h) => Applicative (Curried g h) where
+instance (Functor g, g ~ h) => App.Applicative (Curried g h) where
   pure a = Curried (fmap ($ a))
   {-# INLINE pure #-}
   Curried mf <*> Curried ma = Curried (ma . mf . fmap (.))
   {-# INLINE (<*>) #-}
+  liftA2 f (Curried g) (Curried ma) = Curried (ma . g . fmap (\p q -> p . f q))
+  {-# INLINE liftA2 #-}
 
 -- | The natural isomorphism between @f@ and @Curried f f@.
 -- @
