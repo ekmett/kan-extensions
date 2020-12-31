@@ -1,7 +1,7 @@
 kan-extensions
 ==============
 
-[![Hackage](https://img.shields.io/hackage/v/kan-extensions.svg)](https://hackage.haskell.org/package/kan-extensions) [![Build Status](https://secure.travis-ci.org/ekmett/kan-extensions.png?branch=master)](http://travis-ci.org/ekmett/kan-extensions)
+[![Hackage](https://img.shields.io/hackage/v/kan-extensions.svg)](https://hackage.haskell.org/package/kan-extensions) [![Build Status](https://github.com/ekmett/kan-extensions/workflows/Haskell-CI/badge.svg)](https://github.com/ekmett/kan-extensions/actions?query=workflow%3AHaskell-CI)
 
 This package provides tools for working with various Kan extensions and Kan lifts in Haskell.
 

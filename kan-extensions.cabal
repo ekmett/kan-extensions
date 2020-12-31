@@ -25,7 +25,6 @@ tested-with:   GHC == 7.4.2
              , GHC == 8.10.1
 
 extra-source-files:
-  .travis.yml
   .gitignore
   .ghci
   .vim.custom
