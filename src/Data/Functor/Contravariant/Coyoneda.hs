@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE RankNTypes #-}
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
@@ -24,6 +25,7 @@ module Data.Functor.Contravariant.Coyoneda
   ( Coyoneda(..)
   , liftCoyoneda
   , lowerCoyoneda
+  , hoistCoyoneda
   ) where
 
 import Control.Arrow
@@ -71,3 +73,9 @@ liftCoyoneda = Coyoneda id
 lowerCoyoneda :: Contravariant f => Coyoneda f a -> f a
 lowerCoyoneda (Coyoneda f m) = contramap f m
 {-# INLINE lowerCoyoneda #-}
+
+-- | Lift a natural transformation from @f@ to @g@ to a natural transformation
+-- from @Coyoneda f@ to @Coyoneda g@.
+hoistCoyoneda :: (forall a. f a -> g a) -> (Coyoneda f b -> Coyoneda g b)
+hoistCoyoneda f (Coyoneda g x) = Coyoneda g (f x)
+{-# INLINE hoistCoyoneda #-}
