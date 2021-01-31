@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Add `hoistCoyoneda` to `Data.Functor.Contravariant.Coyoneda`.
+
 5.2.1 [2020.10.01]
 ------------------
 * Allow building with GHC 9.0.
