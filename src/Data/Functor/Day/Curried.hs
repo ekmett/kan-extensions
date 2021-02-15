@@ -31,12 +31,10 @@ module Data.Functor.Day.Curried
   , liftCurried, lowerCurried, rap
   ) where
 
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative
-#endif
 import Data.Functor.Adjunction
 import Data.Functor.Day
 import Data.Functor.Identity
+import Control.Applicative
 
 newtype Curried g h a =
   Curried { runCurried :: forall r. g (a -> r) -> h r }
@@ -50,6 +48,10 @@ instance (Functor g, g ~ h) => Applicative (Curried g h) where
   {-# INLINE pure #-}
   Curried mf <*> Curried ma = Curried (ma . mf . fmap (.))
   {-# INLINE (<*>) #-}
+#if MIN_VERSION_base(4,10,0)
+  liftA2 f (Curried g) (Curried ma) = Curried (ma . g . fmap (\p q -> p . f q))
+  {-# INLINE liftA2 #-}
+#endif
 
 -- | The natural isomorphism between @f@ and @Curried f f@.
 -- @
