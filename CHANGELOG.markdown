@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.2.2 [2021.02.17]
+------------------
 * Add `hoistCoyoneda` to `Data.Functor.Contravariant.Coyoneda`.
 
 5.2.1 [2020.10.01]
