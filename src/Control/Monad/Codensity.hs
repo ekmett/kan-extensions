@@ -297,6 +297,9 @@ reset = lift . lowerCodensity
 -- 'reset' and passes it to @f@:
 --
 -- * @'reset' ('shift' f >>= k) = 'reset' (f ('lowerCodensity' . k))@
-
+#if __GLASGOW_HASKELL__ >= 710
 shift :: Applicative m => (forall b. (a -> m b) -> Codensity m b) -> Codensity m a
+#else
+shift :: Monad m => (forall b. (a -> m b) -> Codensity m b) -> Codensity m a
+#endif
 shift f = Codensity $ lowerCodensity . f
