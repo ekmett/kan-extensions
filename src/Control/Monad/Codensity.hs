@@ -44,8 +44,10 @@ import qualified Control.Monad.Fail as Fail
 import Control.Monad.Free
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
+import Control.Monad.Writer.Class
 import Control.Monad.State.Class
 import Control.Monad.Trans.Class
+import Data.Monoid (Monoid, mappend)
 import Data.Functor.Adjunction
 import Data.Functor.Apply
 import Data.Functor.Kan.Ran
@@ -253,6 +255,14 @@ instance MonadReader r m => MonadState r (Codensity m) where
   {-# INLINE get #-}
   put s = Codensity (\k -> local (const s) (k ()))
   {-# INLINE put #-}
+
+instance (Monoid w, MonadReader w m) => MonadWriter w (Codensity m) where
+  tell w = Codensity $ \k -> local (`mappend` w) (k ())
+  writer (a, w) = Codensity $ \k -> local (`mappend` w) (k a)
+  pass c = Codensity $ \k -> runCodensity c $ \(a, f) -> local f (k a)
+  listen c = Codensity $ \k -> runCodensity c $ \a -> do
+    w <- ask
+    k (a, w)
 
 instance MonadReader r m => MonadReader r (Codensity m) where
   ask = Codensity (ask >>=)
