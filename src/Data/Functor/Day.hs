@@ -4,6 +4,8 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2014-2016 Edward Kmett
@@ -45,6 +47,7 @@ import Control.Comonad.Trans.Class
 import Data.Distributive
 import Data.Profunctor.Cayley (Cayley(..))
 import Data.Profunctor.Composition (Procompose(..))
+import Data.Functor.Adjunction
 import Data.Functor.Identity
 import Data.Functor.Rep
 #ifdef __GLASGOW_HASKELL__
@@ -100,6 +103,13 @@ instance (Representable f, Representable g) => Representable (Day f g) where
   tabulate f = Day (tabulate id) (tabulate id) (curry f)
   index (Day m n o) (x,y) = o (index m x) (index n y)
 
+instance (Adjunction f u, Adjunction f' u') => Adjunction (Day f f') (Day u u') where
+  unit a = Day (unit ()) (unit ()) (\f f' -> Day f f' (\() () -> a))
+  counit (Day f f' h) = case h a a' of Day u u' g -> g (indexAdjunction u f_) (indexAdjunction u' f_')
+    where
+      (a, f_) = splitL f
+      (a', f_') = splitL f'
+  
 instance (Comonad f, Comonad g) => Comonad (Day f g) where
   extract (Day fb gc bca) = bca (extract fb) (extract gc)
   duplicate (Day fb gc bca) = Day (duplicate fb) (duplicate gc) (\fb' gc' -> Day fb' gc' bca)

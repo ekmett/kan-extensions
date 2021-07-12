@@ -2,6 +2,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
 {-# LANGUAGE DeriveDataTypeable #-}
 #endif
@@ -41,8 +43,11 @@ module Data.Functor.Contravariant.Day
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative
 #endif
+import Control.Arrow ((***))
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Rep
+import Data.Functor.Contravariant.Adjunction
+import Data.Functor.Contravariant.Divisible
 import Data.Proxy
 import Data.Tuple (swap)
 #ifdef __GLASGOW_HASKELL__
@@ -84,6 +89,11 @@ dayTyCon = mkTyCon "Data.Functor.Contravariant.Day.Day"
 instance Contravariant (Day f g) where
   contramap f (Day fb gc abc) = Day fb gc (abc . f)
 
+instance (Divisible f, Divisible g) => Divisible (Day f g) where
+  divide h (Day f g l) (Day f' g' r) = Day (divided f f') (divided g g') (intertwine . (l *** r) . h)
+    where intertwine ((a, b), (c, d)) = ((a, c), (b, d))
+  conquer = Day conquer conquer (\a -> (a, a))
+  
 instance (Representable f, Representable g) => Representable (Day f g) where
   type Rep (Day f g) = (Rep f, Rep g)
 
@@ -99,6 +109,9 @@ instance (Representable f, Representable g) => Representable (Day f g) where
     Right (vf, vg) -> (Right vf, Right vg)
   {-# INLINE tabulate #-}
 
+instance (Adjunction f u, Adjunction f' u') => Adjunction (Day f f') (Day u u') where
+  unit a = Day (unit a) (unit a) (\(Day f f' g) -> (contramap (fst . g) f, contramap (snd . g) f'))
+  counit a = Day (counit a) (counit a) (\(Day u u' g) -> (contramap (fst . g) u, contramap (snd . g) u'))
 
 -- | Break apart the Day convolution of two contravariant functors.
 runDay :: (Contravariant f, Contravariant g) => Day f g a -> (f a, g a)
