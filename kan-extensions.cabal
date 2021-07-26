@@ -67,7 +67,7 @@ library
     semigroupoids       >= 4       && < 6,
     tagged              >= 0.7.2   && < 1,
     transformers        >= 0.2     && < 0.6,
-    transformers-compat >= 0.3     && < 0.7
+    transformers-compat >= 0.3     && < 0.8
 
   exposed-modules:
     Control.Comonad.Density
