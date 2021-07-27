@@ -36,6 +36,7 @@ module Control.Monad.Codensity
   , codensityToComposedRep, composedRepToCodensity
   , wrapCodensity
   , improve
+  -- ** Delimited continuations
   , reset
   , shift
   ) where
@@ -289,7 +290,6 @@ wrapCodensity f = Codensity (\k -> f (k ()))
 -- | @'reset' m@ delimits the continuation of any 'shift' inside @m@.
 --
 -- * @'reset' ('return' m) = 'return' m@
---
 reset :: Monad m => Codensity m a -> Codensity m a
 reset = lift . lowerCodensity
 
@@ -297,9 +297,11 @@ reset = lift . lowerCodensity
 -- 'reset' and passes it to @f@:
 --
 -- * @'reset' ('shift' f >>= k) = 'reset' (f ('lowerCodensity' . k))@
+shift ::
 #if __GLASGOW_HASKELL__ >= 710
-shift :: Applicative m => (forall b. (a -> m b) -> Codensity m b) -> Codensity m a
+  Applicative m
 #else
-shift :: Monad m => (forall b. (a -> m b) -> Codensity m b) -> Codensity m a
+  Monad m
 #endif
+  => (forall b. (a -> m b) -> Codensity m b) -> Codensity m a
 shift f = Codensity $ lowerCodensity . f
