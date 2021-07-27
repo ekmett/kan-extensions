@@ -1,3 +1,7 @@
+5.2.3 [2021.07.27]
+------------------
+* Add `shift` and `reset` to `Control.Monad.Codensity`.
+
 5.2.2 [2021.02.17]
 ------------------
 * Add `hoistCoyoneda` to `Data.Functor.Contravariant.Coyoneda`.
