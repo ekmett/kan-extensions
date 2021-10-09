@@ -93,7 +93,7 @@ instance Functor (Coyoneda f) where
 
 instance Apply f => Apply (Coyoneda f) where
   Coyoneda mf m <.> Coyoneda nf n =
-    liftCoyoneda $ (\mres nres -> mf mres (nf nres)) <$> m <.> n
+  Coyoneda f a <.> Coyoneda g b = Coyoneda (\(x,y) -> f x (g y)) (liftF2 (,) a b)
   {-# INLINE (<.>) #-}
   Coyoneda _ m .> Coyoneda g n = Coyoneda g (m .> n)
   {-# INLINE (.>) #-}
@@ -103,8 +103,11 @@ instance Apply f => Apply (Coyoneda f) where
 instance Applicative f => Applicative (Coyoneda f) where
   pure = liftCoyoneda . pure
   {-# INLINE pure #-}
-  Coyoneda mf m <*> Coyoneda nf n =
-    liftCoyoneda $ (\mres nres -> mf mres (nf nres)) <$> m <*> n
+  -- Why pair things up? If Coyoneda is used for a traversal,
+  -- doing it this way holds all the user maps and applications
+  -- till the end, pulling them out. This is particularly nice for
+  -- generics.
+  Coyoneda f a <*> Coyoneda g b = Coyoneda (\(x,y) -> f x (g y)) (liftA2 (,) a b)
   {-# INLINE (<*>) #-}
   Coyoneda _ m *> Coyoneda g n = Coyoneda g (m *> n)
   {-# INLINE (*>) #-}
