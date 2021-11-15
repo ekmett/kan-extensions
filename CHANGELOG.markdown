@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Allow building with `transformers-0.6.*` and `mtl-2.3.*`.
+
 5.2.3 [2021.07.27]
 ------------------
 * Add `shift` and `reset` to `Control.Monad.Codensity`.

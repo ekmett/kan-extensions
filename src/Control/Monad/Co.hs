@@ -66,10 +66,11 @@ import Control.Comonad.Density
 import Control.Comonad.Env.Class as Env
 import Control.Comonad.Store.Class
 import Control.Comonad.Traced.Class as Traced
+import Control.Monad ((<=<), liftM)
 import Control.Monad.Error.Class
 import qualified Control.Monad.Fail as Fail
 import Control.Monad.IO.Class
-import Control.Monad.Identity
+import Control.Monad.Identity (Identity(..))
 import Control.Monad.Reader.Class as Reader
 import Control.Monad.State.Class
 import Control.Monad.Trans.Class
