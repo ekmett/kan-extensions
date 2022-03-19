@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeOperators #-}
 
 #if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL__ < 710
 {-# LANGUAGE Trustworthy #-}
