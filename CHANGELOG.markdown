@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.2.5 [2022.06.26]
+------------------
 * Only require a `Functor` constraint in the `Eq` and `Ord` instances for
   `Coyoneda` when building against `transformers-0.4.*`.
 
