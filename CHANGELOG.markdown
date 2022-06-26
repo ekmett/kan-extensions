@@ -1,3 +1,8 @@
+next [????.??.??]
+-----------------
+* Only require a `Functor` constraint in the `Eq` and `Ord` instances for
+  `Coyoneda` when building against `transformers-0.4.*`.
+
 5.2.4 [2022.05.07]
 ------------------
 * Allow building with `transformers-0.6.*` and `mtl-2.3.*`.

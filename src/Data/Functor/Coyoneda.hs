@@ -287,11 +287,19 @@ instance (Functor f, Ord1 f) => Ord1 (Coyoneda f) where
   {-# INLINE compare1 #-}
 #endif
 
-instance (Functor f, Eq1 f, Eq a) => Eq (Coyoneda f a) where
+instance ( Eq1 f, Eq a
+#if !LIFTED_FUNCTOR_CLASSES
+         , Functor f
+#endif
+         ) => Eq (Coyoneda f a) where
   (==) = eq1
   {-# INLINE (==) #-}
 
-instance (Functor f, Ord1 f, Ord a) => Ord (Coyoneda f a) where
+instance ( Ord1 f, Ord a
+#if !LIFTED_FUNCTOR_CLASSES
+         , Functor f
+#endif
+         ) => Ord (Coyoneda f a) where
   compare = compare1
   {-# INLINE compare #-}
 
