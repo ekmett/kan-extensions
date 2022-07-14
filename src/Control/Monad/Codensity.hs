@@ -44,6 +44,7 @@ module Control.Monad.Codensity
 import Control.Applicative
 import Control.Monad (MonadPlus(..))
 import qualified Control.Monad.Fail as Fail
+import Control.Monad.Fix
 import Control.Monad.Free
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
@@ -167,6 +168,9 @@ instance MonadPlus v => MonadPlus (Codensity v) where
   Codensity m `mplus` Codensity n = Codensity (\k -> m k `mplus` n k)
   {-# INLINE mplus #-}
 #endif
+
+instance MonadFix v => MonadFix (Codensity v) where
+  mfix f = Codensity (\k -> mfix (lowerCodensity . f) >>= k)
 
 -- |
 -- This serves as the *left*-inverse (retraction) of 'lift'.
