@@ -30,7 +30,7 @@ module Data.Functor.Kan.Lan
   ) where
 
 #if !(MIN_VERSION_base(4,18,0))
-import Control.Applicative (Applicative(..))
+import Control.Applicative
 #endif
 import Data.Functor.Adjunction
 import Data.Functor.Apply

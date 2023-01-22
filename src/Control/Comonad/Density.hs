@@ -33,7 +33,7 @@ module Control.Comonad.Density
   ) where
 
 #if !(MIN_VERSION_base(4,18,0))
-import Control.Applicative (Applicative(..))
+import Control.Applicative
 #endif
 import Control.Comonad
 import Control.Comonad.Trans.Class
