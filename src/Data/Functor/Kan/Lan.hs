@@ -29,7 +29,9 @@ module Data.Functor.Kan.Lan
   , composedAdjointToLan, lanToComposedAdjoint
   ) where
 
-import Control.Applicative
+#if !(MIN_VERSION_base(4,18,0))
+import Control.Applicative (Applicative(..))
+#endif
 import Data.Functor.Adjunction
 import Data.Functor.Apply
 import Data.Functor.Composition

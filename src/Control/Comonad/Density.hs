@@ -32,7 +32,9 @@ module Control.Comonad.Density
   , densityToLan, lanToDensity
   ) where
 
-import Control.Applicative
+#if !(MIN_VERSION_base(4,18,0))
+import Control.Applicative (Applicative(..))
+#endif
 import Control.Comonad
 import Control.Comonad.Trans.Class
 import Data.Functor.Apply

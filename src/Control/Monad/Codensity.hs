@@ -13,7 +13,7 @@
 #if (__GLASGOW_HASKELL__ >= 708) && (__GLASGOW_HASKELL__ < 802)
 {-# LANGUAGE DeriveDataTypeable #-}
 #endif
-#if __GLASGOW_HASKELL__ >= 802
+#if __GLASGOW_HASKELL__ >= 802 && __GLASGOW_HASKELL__ < 806
 {-# LANGUAGE TypeInType #-}
 #endif
 
