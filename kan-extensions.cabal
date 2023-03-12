@@ -65,7 +65,7 @@ library
     free                >= 4       && < 6,
     mtl                 >= 2.0.1   && < 2.4,
     profunctors         >= 5       && < 6,
-    semigroupoids       >= 4       && < 6,
+    semigroupoids       >= 4       && < 7,
     tagged              >= 0.7.2   && < 1,
     transformers        >= 0.2     && < 0.7,
     transformers-compat >= 0.3     && < 0.8
