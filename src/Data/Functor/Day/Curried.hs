@@ -38,6 +38,7 @@ import Control.Applicative
 import Data.Functor.Adjunction
 import Data.Functor.Day
 import Data.Functor.Identity
+import Data.Functor.Apply
 
 newtype Curried g h a =
   Curried { runCurried :: forall r. g (a -> r) -> h r }
@@ -45,6 +46,14 @@ newtype Curried g h a =
 instance Functor g => Functor (Curried g h) where
   fmap f (Curried g) = Curried (g . fmap (.f))
   {-# INLINE fmap #-}
+
+instance (Functor g, g ~ h) => Apply (Curried g h) where
+  Curried mf <.> Curried ma = Curried (ma . mf . fmap (.))
+  {-# INLINE (<.>) #-}
+#if MIN_VERSION_semigroupoids(5,2,2)
+  liftF2 f (Curried g) (Curried ma) = Curried (ma . g . fmap (\p q -> p . f q))
+  {-# INLINE liftF2 #-}
+#endif
 
 instance (Functor g, g ~ h) => Applicative (Curried g h) where
   pure a = Curried (fmap ($ a))
