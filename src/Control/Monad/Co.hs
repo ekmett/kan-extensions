@@ -1,15 +1,9 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-#if __GLASGOW_HASKELL__ >= 706
 {-# LANGUAGE PolyKinds #-}
-#endif
-#if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL__ < 710
-{-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2016 Edward Kmett
@@ -57,9 +51,6 @@ module Control.Monad.Co
   , askW, asksW, traceW
   )where
 
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative
-#endif
 import Control.Comonad
 import Control.Comonad.Cofree
 import Control.Comonad.Density

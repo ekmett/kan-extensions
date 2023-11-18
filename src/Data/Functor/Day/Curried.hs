@@ -1,11 +1,6 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeOperators #-}
-
-#if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL__ < 710
-{-# LANGUAGE Trustworthy #-}
-#endif
 -------------------------------------------------------------------------------------------
 -- |
 -- Copyright 	: 2013-2016 Edward Kmett and Dan Doel
@@ -32,9 +27,6 @@ module Data.Functor.Day.Curried
   , liftCurried, lowerCurried, rap
   ) where
 
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative
-#endif
 import Data.Functor.Adjunction
 import Data.Functor.Day
 import Data.Functor.Identity
@@ -50,10 +42,8 @@ instance Functor g => Functor (Curried g h) where
 instance (Functor g, g ~ h) => Apply (Curried g h) where
   Curried mf <.> Curried ma = Curried (ma . mf . fmap (.))
   {-# INLINE (<.>) #-}
-#if MIN_VERSION_semigroupoids(5,2,2)
   liftF2 f (Curried g) (Curried ma) = Curried (ma . g . fmap (\p q -> p . f q))
   {-# INLINE liftF2 #-}
-#endif
 
 instance (Functor g, g ~ h) => Applicative (Curried g h) where
   pure a = Curried (fmap ($ a))

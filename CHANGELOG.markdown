@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Drop support for GHC 8.2 and earlier.
+
 5.2.5 [2022.06.26]
 ------------------
 * Only require a `Functor` constraint in the `Eq` and `Ord` instances for

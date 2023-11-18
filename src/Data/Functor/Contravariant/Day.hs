@@ -1,18 +1,10 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
 {-# LANGUAGE DeriveDataTypeable #-}
-#endif
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ <= 707
 {-# LANGUAGE KindSignatures #-}
-#endif
-#if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL__ < 710
-{-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2013-2016 Edward Kmett, Gershom Bazerman and Derek Elkins
@@ -40,9 +32,6 @@ module Data.Functor.Contravariant.Day
   , trans1, trans2
   ) where
 
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative
-#endif
 import Control.Arrow ((***))
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Rep
@@ -50,15 +39,11 @@ import Data.Functor.Contravariant.Adjunction
 import Data.Functor.Contravariant.Divisible
 import Data.Proxy
 import Data.Tuple (swap)
-#ifdef __GLASGOW_HASKELL__
 import Data.Typeable
-#endif
 
 -- | The Day convolution of two contravariant functors.
 data Day f g a = forall b c. Day (f b) (g c) (a -> (b, c))
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
   deriving Typeable
-#endif
 
 -- | Construct the Day convolution
 --
@@ -69,23 +54,6 @@ data Day f g a = forall b c. Day (f b) (g c) (a -> (b, c))
 day :: f a -> g b -> Day f g (a, b)
 day fa gb = Day fa gb id
 
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-instance (Typeable1 f, Typeable1 g) => Typeable1 (Day f g) where
-    typeOf1 tfga = mkTyConApp dayTyCon [typeOf1 (fa tfga), typeOf1 (ga tfga)]
-        where fa :: t f (g :: * -> *) a -> f a
-              fa = undefined
-              ga :: t (f :: * -> *) g a -> g a
-              ga = undefined
-
-dayTyCon :: TyCon
-#if MIN_VERSION_base(4,4,0)
-dayTyCon = mkTyCon3 "contravariant" "Data.Functor.Contravariant.Day" "Day"
-#else
-dayTyCon = mkTyCon "Data.Functor.Contravariant.Day.Day"
-#endif
-
-#endif
-
 instance Contravariant (Day f g) where
   contramap f (Day fb gc abc) = Day fb gc (abc . f)
 
@@ -93,7 +61,7 @@ instance (Divisible f, Divisible g) => Divisible (Day f g) where
   divide h (Day f g l) (Day f' g' r) = Day (divided f f') (divided g g') (intertwine . (l *** r) . h)
     where intertwine ((a, b), (c, d)) = ((a, c), (b, d))
   conquer = Day conquer conquer (\a -> (a, a))
-  
+
 instance (Representable f, Representable g) => Representable (Day f g) where
   type Rep (Day f g) = (Rep f, Rep g)
 

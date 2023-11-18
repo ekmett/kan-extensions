@@ -1,12 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE Rank2Types #-}
-#if __GLASGOW_HASKELL__ >= 706
 {-# LANGUAGE PolyKinds #-}
-#endif
-#if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL__ < 710
-{-# LANGUAGE Trustworthy #-}
-#endif
 -------------------------------------------------------------------------------------------
 -- |
 -- Copyright 	: 2008-2016 Edward Kmett

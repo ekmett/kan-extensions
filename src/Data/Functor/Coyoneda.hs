@@ -1,15 +1,10 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-}
-
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
-#include "kan-extensions-common.h"
 
 -----------------------------------------------------------------------------
 -- |
@@ -38,9 +33,6 @@ import Control.Monad.Trans.Class
 import Control.Comonad
 import Control.Comonad.Trans.Class
 import Data.Distributive
-#if !LIFTED_FUNCTOR_CLASSES
-import Data.Function (on)
-#endif
 import Data.Functor.Adjunction
 import Data.Functor.Bind
 import Data.Functor.Classes
@@ -151,18 +143,9 @@ instance Bind m => Bind (Coyoneda m) where
   {-# INLINE (>>-) #-}
 
 instance Monad m => Monad (Coyoneda m) where
-#if __GLASGOW_HASKELL__ < 710
-  -- pre-AMP
-  return = Coyoneda id . return
-  {-# INLINE return #-}
-
-  Coyoneda _ m >> Coyoneda g n = Coyoneda g (m >> n)
-  {-# INLINE (>>) #-}
-#else
-  -- post-AMP
   (>>) = (*>)
   {-# INLINE (>>) #-}
-#endif
+
   Coyoneda f v >>= k = lift (v >>= lowerM . k . f)
   {-# INLINE (>>=) #-}
 
@@ -222,84 +205,40 @@ instance Distributive f => Distributive (Coyoneda f) where
   {-# INLINE collect #-}
 
 instance (Functor f, Show1 f) => Show1 (Coyoneda f) where
-#if LIFTED_FUNCTOR_CLASSES
   liftShowsPrec sp sl d (Coyoneda f a) =
     showsUnaryWith (liftShowsPrec sp sl) "liftCoyoneda" d (fmap f a)
   {-# INLINE liftShowsPrec #-}
-#else
-  showsPrec1 d (Coyoneda f a) = showParen (d > 10) $
-    showString "liftCoyoneda " . showsPrec1 11 (fmap f a)
-  {-# INLINE showsPrec1 #-}
-#endif
 
 instance (Read1 f) => Read1 (Coyoneda f) where
-#if LIFTED_FUNCTOR_CLASSES
   liftReadsPrec rp rl = readsData $
     readsUnaryWith (liftReadsPrec rp rl) "liftCoyoneda" liftCoyoneda
   {-# INLINE liftReadsPrec #-}
-#else
-  readsPrec1 d = readParen (d > 10) $ \r' ->
-    [ (liftCoyoneda f, t)
-    | ("liftCoyoneda", s) <- lex r'
-    , (f, t) <- readsPrec1 11 s
-    ]
-  {-# INLINE readsPrec1 #-}
-#endif
 
 instance (Functor f, Show1 f, Show a) => Show (Coyoneda f a) where
   showsPrec = showsPrec1
   {-# INLINE showsPrec #-}
 
 instance Read (f a) => Read (Coyoneda f a) where
-#ifdef __GLASGOW_HASKELL__
   readPrec = parens $ prec 10 $ do
     Ident "liftCoyoneda" <- lexP
     liftCoyoneda <$> step readPrec
   {-# INLINE readPrec #-}
-#else
-  readsPrec d = readParen (d > 10) $ \r' ->
-    [ (liftCoyoneda f, t)
-    | ("liftCoyoneda", s) <- lex r'
-    , (f, t) <- readsPrec 11 s
-    ]
-  {-# INLINE readsPrec #-}
-#endif
 
-#if LIFTED_FUNCTOR_CLASSES
 instance Eq1 f => Eq1 (Coyoneda f) where
   liftEq eq (Coyoneda f xs) (Coyoneda g ys) =
     liftEq (\x y -> eq (f x) (g y)) xs ys
   {-# INLINE liftEq #-}
-#else
-instance (Functor f, Eq1 f) => Eq1 (Coyoneda f) where
-  eq1 = eq1 `on` lowerCoyoneda
-  {-# INLINE eq1 #-}
-#endif
 
-#if LIFTED_FUNCTOR_CLASSES
 instance Ord1 f => Ord1 (Coyoneda f) where
   liftCompare cmp (Coyoneda f xs) (Coyoneda g ys) =
     liftCompare (\x y -> cmp (f x) (g y)) xs ys
   {-# INLINE liftCompare #-}
-#else
-instance (Functor f, Ord1 f) => Ord1 (Coyoneda f) where
-  compare1 = compare1 `on` lowerCoyoneda
-  {-# INLINE compare1 #-}
-#endif
 
-instance ( Eq1 f, Eq a
-#if !LIFTED_FUNCTOR_CLASSES
-         , Functor f
-#endif
-         ) => Eq (Coyoneda f a) where
+instance (Eq1 f, Eq a) => Eq (Coyoneda f a) where
   (==) = eq1
   {-# INLINE (==) #-}
 
-instance ( Ord1 f, Ord a
-#if !LIFTED_FUNCTOR_CLASSES
-         , Functor f
-#endif
-         ) => Ord (Coyoneda f a) where
+instance (Ord1 f, Ord a) => Ord (Coyoneda f a) where
   compare = compare1
   {-# INLINE compare #-}
 

@@ -1,14 +1,10 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
-#include "kan-extensions-common.h"
 
 -----------------------------------------------------------------------------
 -- |
@@ -158,64 +154,33 @@ instance Adjunction f g => Adjunction (Yoneda f) (Yoneda g) where
   {-# INLINE counit #-}
 
 instance Show1 f => Show1 (Yoneda f) where
-#if LIFTED_FUNCTOR_CLASSES
   liftShowsPrec sp sl d (Yoneda f) =
     showsUnaryWith (liftShowsPrec sp sl) "liftYoneda" d (f id)
-#else
-  showsPrec1 d (Yoneda f) = showParen (d > 10) $
-    showString "liftYoneda " . showsPrec1 11 (f id)
-#endif
 
 instance (Read1 f, Functor f) => Read1 (Yoneda f) where
-#if LIFTED_FUNCTOR_CLASSES
   liftReadsPrec rp rl = readsData $
     readsUnaryWith (liftReadsPrec rp rl) "liftYoneda" liftYoneda
-#else
-  readsPrec1 d = readParen (d > 10) $ \r' ->
-    [ (liftYoneda f, t)
-    | ("liftYoneda", s) <- lex r'
-    , (f, t) <- readsPrec1 11 s
-    ]
-#endif
 
 instance Show (f a) => Show (Yoneda f a) where
   showsPrec d (Yoneda f) = showParen (d > 10) $
     showString "liftYoneda " . showsPrec 11 (f id)
 
 instance (Functor f, Read (f a)) => Read (Yoneda f a) where
-#ifdef __GLASGOW_HASKELL__
   readPrec = parens $ prec 10 $ do
      Ident "liftYoneda" <- lexP
      liftYoneda <$> step readPrec
-#else
-  readsPrec d = readParen (d > 10) $ \r' ->
-    [ (liftYoneda f, t)
-    | ("liftYoneda", s) <- lex r'
-    , (f, t) <- readsPrec 11 s
-    ]
-#endif
 
 infixl 0 `on1`
 on1 :: (g a -> g b -> c) -> (forall x. f x -> g x) -> f a -> f b -> c
 (.*.) `on1` f = \x y -> f x .*. f y
 
 instance Eq1 f => Eq1 (Yoneda f) where
-#if LIFTED_FUNCTOR_CLASSES
   liftEq eq = liftEq eq `on1` lowerYoneda
   {-# INLINE liftEq #-}
-#else
-  eq1 = eq1 `on1` lowerYoneda
-  {-# INLINE eq1 #-}
-#endif
 
 instance Ord1 f => Ord1 (Yoneda f) where
-#if LIFTED_FUNCTOR_CLASSES
   liftCompare cmp = liftCompare cmp `on1` lowerYoneda
   {-# INLINE liftCompare #-}
-#else
-  compare1 = compare1 `on1` lowerYoneda
-  {-# INLINE compare1 #-}
-#endif
 
 instance (Eq1 f, Eq a) => Eq (Yoneda f a) where
   (==) = eq1
@@ -264,10 +229,6 @@ instance Bind m => Bind (Yoneda m) where
   {-# INLINE (>>-) #-}
 
 instance Monad m => Monad (Yoneda m) where
-#if __GLASGOW_HASKELL__ < 710
-  return a = Yoneda (\f -> return (f a))
-  {-# INLINE return #-}
-#endif
   Yoneda m >>= k = Yoneda (\f -> m id >>= \a -> runYoneda (k a) f)
   {-# INLINE (>>=) #-}
 
