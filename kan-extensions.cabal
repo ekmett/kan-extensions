@@ -24,7 +24,6 @@ tested-with:   GHC == 8.4.4
 
 extra-source-files:
   .gitignore
-  .ghci
   .vim.custom
   CHANGELOG.markdown
   README.markdown
