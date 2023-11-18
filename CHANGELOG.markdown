@@ -3,6 +3,7 @@ next [????.??.??]
 * Drop support for GHC 8.2 and earlier.
 * Add an `Adjunction` instance for `Data.Functor.Day`.
 * Add `Adjunction` and `Divisible` instances for `Data.Functor.Contravariant.Day`.
+* Add an `Apply` instance for `Data.Functor.Day.Curried`.
 
 5.2.5 [2022.06.26]
 ------------------
