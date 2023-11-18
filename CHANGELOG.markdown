@@ -1,6 +1,14 @@
 next [????.??.??]
 -----------------
 * Drop support for GHC 8.2 and earlier.
+* Generalize instances in `Control.Monad.Codensity` to be of the form:
+
+  ```hs
+  instance (m ~~ m', MonadFail f') => MonadFail (Codensity (f :: k -> TYPE rep))
+  ```
+
+  This avoids having to constrain `k ~ Type` and `rep ~ LiftedRep`, which could potentially harm type inference.
+* Explicitly implement `liftA2` in the `Applicative` instance for `Data.Functor.Day.Curried`.
 * Add an `Adjunction` instance for `Data.Functor.Day`.
 * Add `Adjunction` and `Divisible` instances for `Data.Functor.Contravariant.Day`.
 * Add an `Apply` instance for `Data.Functor.Day.Curried`.
