@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE KindSignatures #-}
@@ -50,37 +49,16 @@ import Data.Profunctor.Composition (Procompose(..))
 import Data.Functor.Adjunction
 import Data.Functor.Identity
 import Data.Functor.Rep
-#ifdef __GLASGOW_HASKELL__
 import Data.Typeable
-#endif
 import Prelude hiding (id,(.))
 
 -- | The Day convolution of two covariant functors.
 data Day f g a = forall b c. Day (f b) (g c) (b -> c -> a)
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
   deriving Typeable
-#endif
 
 -- | Construct the Day convolution
 day :: f (a -> b) -> g a -> Day f g b
 day fa gb = Day fa gb id
-
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-instance (Typeable1 f, Typeable1 g) => Typeable1 (Day f g) where
-    typeOf1 tfga = mkTyConApp dayTyCon [typeOf1 (fa tfga), typeOf1 (ga tfga)]
-        where fa :: t f (g :: * -> *) a -> f a
-              fa = undefined
-              ga :: t (f :: * -> *) g a -> g a
-              ga = undefined
-
-dayTyCon :: TyCon
-#if MIN_VERSION_base(4,4,0)
-dayTyCon = mkTyCon3 "contravariant" "Data.Functor.Day" "Day"
-#else
-dayTyCon = mkTyCon "Data.Functor.Day.Day"
-#endif
-
-#endif
 
 instance Functor (Day f g) where
   fmap f (Day fb gc bca) = Day fb gc $ \b c -> f (bca b c)
@@ -109,7 +87,7 @@ instance (Adjunction f u, Adjunction f' u') => Adjunction (Day f f') (Day u u') 
     where
       (a, f_) = splitL f
       (a', f_') = splitL f'
-  
+
 instance (Comonad f, Comonad g) => Comonad (Day f g) where
   extract (Day fb gc bca) = bca (extract fb) (extract gc)
   duplicate (Day fb gc bca) = Day (duplicate fb) (duplicate gc) (\fb' gc' -> Day fb' gc' bca)
@@ -192,7 +170,7 @@ elim2 (Day fb (Identity c) bca) = flip bca c <$> fb
 
 -- | Collapse via a monoidal functor.
 --
--- @ 
+-- @
 -- 'dap' ('day' f g) = f '<*>' g
 -- @
 dap :: Applicative f => Day f f a -> f a
