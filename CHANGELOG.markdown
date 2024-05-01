@@ -4,7 +4,7 @@ next [????.??.??]
 * Generalize instances in `Control.Monad.Codensity` to be of the form:
 
   ```hs
-  instance (m ~~ m', MonadFail f') => MonadFail (Codensity (f :: k -> TYPE rep))
+  instance (f ~~ f', MonadFail f') => MonadFail (Codensity (f :: k -> TYPE rep))
   ```
 
   This avoids having to constrain `k ~ Type` and `rep ~ LiftedRep`, which could potentially harm type inference.
