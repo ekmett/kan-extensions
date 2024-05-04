@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.2.6 [2024.05.04]
+------------------
 * Drop support for GHC 8.2 and earlier.
 * Generalize instances in `Control.Monad.Codensity` to be of the form:
 
