@@ -49,6 +49,7 @@ module Control.Monad.Co
   , diter, dctrlM
   , posW, peekW, peeksW
   , askW, asksW, traceW
+  , freeW
   )where
 
 import Control.Comonad
@@ -144,6 +145,9 @@ asksW f = liftCoT0 (Env.asks f)
 
 traceW :: ComonadTraced e w => e -> CoT w m ()
 traceW e = liftCoT1 (Traced.trace e)
+
+freeW :: ComonadCofree f w => Co f (CoT w m a) -> CoT w m a
+freeW cof = CoT (runCo cof . fmap (flip runCoT) . unwrap)
 
 liftCoT0M :: (Comonad w, Monad m) => (forall a. w a -> m s) -> CoT w m s
 liftCoT0M f = CoT (\wa -> extract wa =<< f wa)
