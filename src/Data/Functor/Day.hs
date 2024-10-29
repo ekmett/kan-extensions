@@ -1,7 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -49,12 +48,10 @@ import Data.Profunctor.Composition (Procompose(..))
 import Data.Functor.Adjunction
 import Data.Functor.Identity
 import Data.Functor.Rep
-import Data.Typeable
 import Prelude hiding (id,(.))
 
 -- | The Day convolution of two covariant functors.
 data Day f g a = forall b c. Day (f b) (g c) (b -> c -> a)
-  deriving Typeable
 
 -- | Construct the Day convolution
 day :: f (a -> b) -> g a -> Day f g b

@@ -3,7 +3,6 @@
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE KindSignatures #-}
 -----------------------------------------------------------------------------
 -- |
@@ -39,11 +38,9 @@ import Data.Functor.Contravariant.Adjunction
 import Data.Functor.Contravariant.Divisible
 import Data.Proxy
 import Data.Tuple (swap)
-import Data.Typeable
 
 -- | The Day convolution of two contravariant functors.
 data Day f g a = forall b c. Day (f b) (g c) (a -> (b, c))
-  deriving Typeable
 
 -- | Construct the Day convolution
 --
