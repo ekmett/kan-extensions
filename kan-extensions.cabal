@@ -52,7 +52,7 @@ library
     array               >= 0.3.0.2 && < 0.6,
     base                >= 4.11    && < 5,
     comonad             >= 4       && < 6,
-    containers          >= 0.4     && < 0.8,
+    containers          >= 0.4     && < 0.9,
     contravariant       >= 1       && < 2,
     distributive        >= 0.2.2   && < 1,
     invariant           >= 0.1     && < 1,
