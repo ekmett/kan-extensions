@@ -113,12 +113,16 @@ instance Functor (Yoneda f) where
 instance Apply f => Apply (Yoneda f) where
   Yoneda m <.> Yoneda n = Yoneda (\f -> m (f .) <.> n id)
   {-# INLINE (<.>) #-}
+  Yoneda m .> Yoneda n = Yoneda (\f -> m id .> n f)
+  {-# INLINE (.>) #-}
 
 instance Applicative f => Applicative (Yoneda f) where
   pure a = Yoneda (\f -> pure (f a))
   {-# INLINE pure #-}
   Yoneda m <*> Yoneda n = Yoneda (\f -> m (f .) <*> n id)
   {-# INLINE (<*>) #-}
+  Yoneda m *> Yoneda n = Yoneda (\f -> m id *> n f)
+  {-# INLINE (*>) #-}
 
 instance Foldable f => Foldable (Yoneda f) where
   foldMap f = foldMap f . lowerYoneda
