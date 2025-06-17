@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.2.7 [2025.06.17]
+------------------
 * Make the implementations of `(.>)` and `(*>)` for `Data.Functor.Yoneda` more
   stack-efficient.
 
