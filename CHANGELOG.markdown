@@ -1,3 +1,8 @@
+next [????.??.??]
+-----------------
+* Make the implementations of `(.>)` and `(*>)` for `Data.Functor.Yoneda` more
+  stack-efficient.
+
 5.2.6 [2024.05.04]
 ------------------
 * Drop support for GHC 8.2 and earlier.
