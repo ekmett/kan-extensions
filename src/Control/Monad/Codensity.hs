@@ -38,6 +38,7 @@ module Control.Monad.Codensity
 
 import Control.Applicative
 import Control.Monad (MonadPlus(..))
+import Control.Monad.Catch (MonadThrow(..))
 import qualified Control.Monad.Fail as Fail
 import Control.Monad.Free
 import Control.Monad.IO.Class
@@ -141,6 +142,9 @@ instance (v ~~ v', Alternative v')
 
 instance (v ~~ v', Alternative v')
    => MonadPlus (Codensity (v :: k -> TYPE rep))
+
+instance MonadThrow m => MonadThrow (Codensity m) where
+  throwM = lift . throwM
 
 -- |
 -- This serves as the *left*-inverse (retraction) of 'lift'.
