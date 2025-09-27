@@ -56,6 +56,7 @@ library
     containers          >= 0.4     && < 0.9,
     contravariant       >= 1       && < 2,
     distributive        >= 0.2.2   && < 1,
+    exceptions          >= 0.10    && < 0.11,
     invariant           >= 0.1     && < 1,
     free                >= 4       && < 6,
     mtl                 >= 2.2.1   && < 2.4,
