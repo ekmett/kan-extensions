@@ -1,6 +1,7 @@
 next [????.??.??]
 -----------------
 * Add `MonadThrow` instance for `Codensity`.
+* Remove unused `array`, `containers`, and `tagged` dependencies.
 
 5.2.7 [2025.06.17]
 ------------------
