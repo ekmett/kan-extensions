@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.2.8 [2026.01.10]
+------------------
 * Add `MonadThrow` instance for `Codensity`.
 * Remove unused `array`, `containers`, and `tagged` dependencies.
 
