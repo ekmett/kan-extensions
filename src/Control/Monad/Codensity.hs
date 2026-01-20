@@ -40,6 +40,7 @@ import Control.Applicative
 import Control.Monad (MonadPlus(..))
 import Control.Monad.Catch (MonadThrow(..))
 import qualified Control.Monad.Fail as Fail
+import Control.Monad.Fix
 import Control.Monad.Free
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
@@ -145,6 +146,9 @@ instance (v ~~ v', Alternative v')
 
 instance MonadThrow m => MonadThrow (Codensity m) where
   throwM = lift . throwM
+
+instance MonadFix v => MonadFix (Codensity v) where
+  mfix f = Codensity (\k -> mfix (lowerCodensity . f) >>= k)
 
 -- |
 -- This serves as the *left*-inverse (retraction) of 'lift'.
